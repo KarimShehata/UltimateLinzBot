@@ -34,17 +34,17 @@
 	    <type>pom</type>
 	  </dependency>
 	  <!-- Kotlin lib -->
-	  <dependency>
+	  <!-- <dependency>
         <groupId>org.jetbrains.kotlin</groupId>
         <artifactId>kotlin-stdlib</artifactId>
         <version>${kotlin.version}</version>
-      </dependency>
-      <!-- Gson -->
+      </dependency> -->
+      <!-- Json -->
       <dependency>
-		  <groupId>com.google.code.gson</groupId>
-		  <artifactId>gson</artifactId>
-		  <version>2.8.5</version>
-	  </dependency>
+		  <groupId>com.squareup.moshi</groupId>
+		  <artifactId>moshi</artifactId>
+		  <version>1.7.0</version>
+		</dependency>
 	</dependencies>
 	
 	<build>
