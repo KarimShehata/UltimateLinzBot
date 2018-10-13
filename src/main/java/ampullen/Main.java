@@ -10,6 +10,7 @@ import org.json.JSONWriter;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
@@ -18,27 +19,11 @@ public class Main{
 
 	public static void main(String[] args){
 		
-		String port = System.getenv("PORT");
-		System.out.println(port);
-		try {
-			ServerSocket ss = new ServerSocket(Integer.parseInt(port));
-			new Thread(() -> {
-				try {
-					while(!ss.isClosed()){
-						ss.accept();
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}).start();
-		} catch (NumberFormatException | IOException e1) {
-			e1.printStackTrace();
-		}
-		
-		
 		JDA jda = null;
 		try {
-			jda = new JDABuilder("NDk4OTQ5MTg4MzQ4OTM2MTky.Dp3YEg.jjeXldfvrQncYJZDwC3Sl_o8QBE").build();
+			jda = new JDABuilder("NDk4OTQ5MTg4MzQ4OTM2MTky.Dp3YEg.jjeXldfvrQncYJZDwC3Sl_o8QBE")
+					.setGame(Game.playing("Ultimate Frisbee"))
+					.build();
 		} catch (LoginException e) {
 			e.printStackTrace();
 		}
@@ -53,7 +38,7 @@ public class Main{
 			}
 		});
 		jda.addEventListener(new MainListener());
-		jda.addEventListener(new MenuListener());
+		jda.addEventListener(new TournamentListener());
 		
 		
 	}
