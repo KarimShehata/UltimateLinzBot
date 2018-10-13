@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 import org.json.JSONWriter;
 import org.omg.PortableInterceptor.AdapterStateHelper;
 
+import com.squareup.moshi.Json;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
@@ -19,9 +21,11 @@ import com.squareup.moshi.Types;
 public class JsonModel implements Observer{
 
 	private static final File BASE_DIRECTORY = new File(System.getProperty("user.dir") + "/db");
-	Moshi moshi = new Moshi.Builder().build();
+	private Moshi moshi = new Moshi.Builder().build();
 	
 	private List<Tournament> tournaments = new ArrayList<>();
+	
+	private static JsonModel instance = null;
 
 	public List<Tournament> getTournaments() {
 		return tournaments;
@@ -83,11 +87,15 @@ public class JsonModel implements Observer{
 			
 			Type type = f.getGenericType();
 			
-			String name = type.getClass().getSimpleName();
+			if(type instanceof ParameterizedType){
+				type = ((ParameterizedType)type).getActualTypeArguments()[0];
+			}
+			
+			String name = type.getTypeName().split("\\.")[1];
 			
 			Type t = Types.newParameterizedType(List.class, type);
 			
-			File file = new File(BASE_DIRECTORY.getAbsolutePath() + "\\" + t.getTypeName() + ".json");
+			File file = new File(BASE_DIRECTORY.getAbsolutePath() + "\\" + name + ".json");
 			
 			if(file.exists()){
 				
@@ -138,6 +146,13 @@ public class JsonModel implements Observer{
 	
 	public void subscribe(List<? extends Observable> list){
 		list.forEach(x -> x.addObserver(this));
+	}
+	
+	public static JsonModel getInstance(){
+		if(instance == null){
+			instance = new JsonModel();
+		}
+		return instance;
 	}
 	
 }
