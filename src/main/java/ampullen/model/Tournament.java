@@ -1,5 +1,7 @@
 package ampullen.model;
 
+import java.text.SimpleDateFormat;
+
 import ampullen.jsondb.Observable;
 
 public class Tournament extends Observable{
@@ -8,7 +10,8 @@ public class Tournament extends Observable{
 	long date;
 	String location;
 	String format;
-	String venue;
+	String division;
+	//String venue;
 	String teamFee;
 	String playersFee;
 	long registrationDeadline;
@@ -19,15 +22,16 @@ public class Tournament extends Observable{
 	
 	public Tournament(){}
 	
-	public Tournament(String name, long date, String location, String format, String venue, String teamFee,
+	public Tournament(String name, long date, String location, String format, String division, String teamFee,
 			String playersFee, long registrationDeadline, long paymentDeadline) {
 		super();
 		this.name = name;
 		this.date = date;
 		this.location = location;
 		this.format = format;
-		this.venue = venue;
+		//this.venue = venue;
 		this.teamFee = teamFee;
+		this.division = division;
 		this.playersFee = playersFee;
 		this.registrationDeadline = registrationDeadline;
 		this.paymentDeadline = paymentDeadline;
@@ -69,14 +73,14 @@ public class Tournament extends Observable{
 		notifyObservers();
 	}
 
-	public String getVenue() {
+	/*public String getVenue() {
 		return venue;
 	}
 
 	public void setVenue(String venue) {
 		this.venue = venue;
 		notifyObservers();
-	}
+	}*/
 
 	public String getTeamFee() {
 		return teamFee;
@@ -141,12 +145,43 @@ public class Tournament extends Observable{
 		notifyObservers();
 	}
 
+	public String getDivision() {
+		return division;
+	}
+
+	public void setDivision(String division) {
+		this.division = division;
+	}
+
 	@Override
 	public String toString() {
 		return "Tournament [name=" + name + ", date=" + date + ", location=" + location + ", format=" + format
-				+ ", venue=" + venue + ", teamFee=" + teamFee + ", playersFee=" + playersFee + ", registrationDeadline="
-				+ registrationDeadline + ", paymentDeadline=" + paymentDeadline + ", schedule=" + schedule + ", ucLink="
-				+ ucLink + ", comment=" + comment + "]";
+				+ ", division=" + division + ", teamFee=" + teamFee + ", playersFee=" + playersFee
+				+ ", registrationDeadline=" + registrationDeadline + ", paymentDeadline=" + paymentDeadline
+				+ ", schedule=" + schedule + ", ucLink=" + ucLink + ", comment=" + comment + "]";
+	}
+	
+	public String getInfoMarkup(){
+		
+		SimpleDateFormat dateformat = new SimpleDateFormat("DD.MM.yyyy");
+		
+		String s = String.format(
+				"\n**%s**\n"
+				+ "**Datum**: " + dateformat.format(date)
+				+ "\n**Ort**: %s\n"
+				+ "**Format**: %s %s\n"
+				+ "**Teamfee**: %s\n"
+				+ "**Playersfee**: %s\n"
+				+ "**Deadline Anmeldung**: " + dateformat.format(registrationDeadline) + "\n" //%8$td.%8$tm.%8$tY
+				+ "**Deadline Zahlung**: " + dateformat.format(paymentDeadline) + "\n\n"
+				, name, location, format, division, teamFee, playersFee);
+		
+		s += (schedule != null ? String.format("**Schedule:** %s\n\n", schedule) : "");
+		s += (ucLink != null ? String.format("**Ultimate Central:** %s\n\n", ucLink) : "");
+		s += (ucLink != null ? String.format("**Kommentar:** %s", comment) : "");
+		
+		return s;
+		
 	}
 	
 }

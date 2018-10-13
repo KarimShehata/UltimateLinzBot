@@ -23,11 +23,13 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 		MessageChannel channel = event.getChannel();
 		String msg = event.getMessage().getContentRaw();
 		
-		if(channel.getType() == ChannelType.GROUP || channel.getType() == ChannelType.PRIVATE || channel.getType() == ChannelType.TEXT){
-			if(msg.startsWith(cmd)){
-				
-				command(event, msg);
-				
+		if(!event.getJDA().getSelfUser().equals(event.getAuthor())){
+			if(channel.getType() == ChannelType.GROUP || channel.getType() == ChannelType.PRIVATE || channel.getType() == ChannelType.TEXT){
+				if(msg.startsWith(cmd)){
+					
+					command(event, msg);
+					
+				}
 			}
 		}
 	}

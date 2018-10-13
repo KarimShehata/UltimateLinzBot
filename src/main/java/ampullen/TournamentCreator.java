@@ -15,8 +15,8 @@ public class TournamentCreator extends ListenerAdapter{
 
 	PrivateChannel channel;
 	
-	String[] arr = new String[]{"Wie heiﬂt das Turnier?", "Wann ist das Turnier?", "Wo ist das Turnier?", "In welchem Format?", "Teamfee?", "Playersfee?", "Registration Deadline?", "Payment Deadline?"};
-	String[] fields = new String[]{"name", "date", "location", "format", "teamFee", "playersFee", "registrationDeadline", "paymentDeadline"};
+	private String[] arr = new String[]{"Wie heiﬂt das Turnier?", "Wann ist das Turnier?", "Wo ist das Turnier?", "In welchem Format?", "Mixed, Open, Women?", "Teamfee?", "Playersfee?", "Registration Deadline?", "Payment Deadline?"};
+	public static final String[] fields = new String[]{"name", "date", "location", "format", "division", "teamFee", "playersFee", "registrationDeadline", "paymentDeadline"};
 	String[] values;
 	
 	int position = 0;

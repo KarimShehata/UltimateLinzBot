@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class JsonModel implements Observer{
 		this.tournaments = tournaments;
 	}
 	
-	public JsonModel() {
+	private JsonModel() {
 		
 		load();
 		
@@ -93,7 +94,8 @@ public class JsonModel implements Observer{
 				type = ((ParameterizedType)type).getActualTypeArguments()[0];
 			}
 			
-			String name = type.getTypeName().split("\\.")[1];
+			String[] parts = type.getTypeName().split("\\.");
+			String name = parts[parts.length-1];
 			
 			Type t = Types.newParameterizedType(List.class, type);
 			
@@ -101,7 +103,11 @@ public class JsonModel implements Observer{
 			
 			if(file.exists()){
 				
+				//TODO Support Umlaute, €
+				
 				try {
+					List<String> list = Files.readAllLines(file.toPath());
+					System.out.println(list.toString());
 					String s = Files.readAllLines(file.toPath()).stream().reduce("", (x, y) -> x + y);
 					JsonAdapter adapter = moshi.adapter(t);
 					Object o = adapter.fromJson(s);
@@ -109,7 +115,10 @@ public class JsonModel implements Observer{
 					
 					if(element instanceof Tournament){
 						tournaments = ((List<Tournament>)o);
-					}//TODO Other Classes
+						//TODO Other Classes
+					}else{
+						System.out.println("Error 1");
+					}
 					
 				} catch (IOException e) {
 					e.printStackTrace();
