@@ -1,4 +1,4 @@
-package ampullen;
+package ampullen.model;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

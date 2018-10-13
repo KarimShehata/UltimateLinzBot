@@ -1,5 +1,7 @@
 package ampullen;
 
+import ampullen.jsondb.JsonModel;
+
 public class JsonTest {
 
 	public static void main(String[] args) {

@@ -1,4 +1,6 @@
-package ampullen;
+package ampullen.model;
+
+import ampullen.jsondb.Observable;
 
 public class Tournament extends Observable{
 

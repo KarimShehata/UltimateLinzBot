@@ -1,4 +1,4 @@
-package ampullen;
+package ampullen.jsondb;
 
 public interface Observer {
 	

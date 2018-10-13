@@ -1,4 +1,4 @@
-package ampullen;
+package ampullen.jsondb;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,6 +17,8 @@ import com.squareup.moshi.Json;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
+
+import ampullen.model.Tournament;
 
 public class JsonModel implements Observer{
 

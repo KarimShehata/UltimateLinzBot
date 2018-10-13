@@ -1,4 +1,4 @@
-package ampullen;
+package ampullen.jsondb;
 
 import java.util.ArrayList;
 import java.util.List;
