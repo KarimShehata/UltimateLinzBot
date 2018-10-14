@@ -66,6 +66,7 @@ public class JsonModel implements Observer{
 
 		JsonAdapter<List<T>> adapter = moshi.adapter(type);
 		String s = adapter.toJson(list);
+		s.replaceAll("[Ä$‰ˆ¸ƒ÷‹]", "");
 		
 		try (FileWriter fw = new FileWriter(f)){
 			fw.write(s);
@@ -108,13 +109,17 @@ public class JsonModel implements Observer{
 					JsonAdapter adapter = moshi.adapter(t);
 					Object o = adapter.fromJson(s);
 					ObservableList observablelist = new ObservableList<>(((List)o));
-					Object element = observablelist.get(0);
+					if(observablelist.size() > 0){
+						
+						Object element = observablelist.get(0);
+						
+						if(element instanceof Tournament){
+							tournaments = ((ObservableList<Tournament>)observablelist);
+							//TODO Other Classes
+						}else{
+							System.out.println("Error 1");
+						}
 					
-					if(element instanceof Tournament){
-						tournaments = ((ObservableList<Tournament>)observablelist);
-						//TODO Other Classes
-					}else{
-						System.out.println("Error 1");
 					}
 					
 				} catch (IOException e) {

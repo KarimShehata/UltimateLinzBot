@@ -27,7 +27,12 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 			if(channel.getType() == ChannelType.GROUP || channel.getType() == ChannelType.PRIVATE || channel.getType() == ChannelType.TEXT){
 				if(msg.startsWith(cmd)){
 					
-					command(event, msg);
+					System.out.println("Message: " + event.getMessage().getContentDisplay() + " MessageId " + event.getMessageId());
+					boolean b = command(event, msg);
+					
+					if(!b){
+						//TODO Command not recognized
+					}
 					
 				}
 			}
@@ -42,6 +47,7 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 		
 		if(tokens.length < 2){
 			help(event, tokens);
+			return true;
 		}
 		
 		for(Method m : this.getClass().getMethods()){

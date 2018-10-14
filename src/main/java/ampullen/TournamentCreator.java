@@ -16,7 +16,8 @@ public class TournamentCreator extends ListenerAdapter{
 	PrivateChannel channel;
 	
 	private String[] arr = new String[]{"Wie heiﬂt das Turnier?", "Wann ist das Turnier?", "Wo ist das Turnier?", "In welchem Format?", "Mixed, Open, Women?", "Teamfee?", "Playersfee?", "Registration Deadline?", "Payment Deadline?"};
-	public static final String[] fields = new String[]{"name", "date", "location", "format", "division", "teamFee", "playersFee", "registrationDeadline", "paymentDeadline"};
+	public static final String[] fields = new String[]{"name", "date", "location", "format", "division", "teamFee", "playersFee", "registrationDeadline", "paymentDeadline", "uclink"};
+	public static final String[] translations = new String[]{"name-Name des Turniers", "datum-Datum", "ort-Ort des Turniers", "format-Format (z.B. 5v5 Continous)", "division-Division (Mixed, Women, Open, Master)", "teamfee-Teamfee", "playersfee-Playersfee", "registrationdeadline-Deadline zur Registrierung", "paymentdeadline-Deadline zur Teamfeezahlung", "link-Ultimate Central Link"};
 	String[] values;
 	
 	int position = 0;
@@ -43,26 +44,7 @@ public class TournamentCreator extends ListenerAdapter{
 			
 			for(int i = 0 ; i < fields.length ; i++){
 				
-				for(Method m : Tournament.class.getMethods()){
-					
-					if(m.getName().equalsIgnoreCase("set" + fields[i])){
-
-						System.out.println(fields[i]);
-						
-						try {
-							if(m.getParameters()[0].getType().getName().equals(long.class.getName())){
-								
-								m.invoke(t, new SimpleDateFormat("DD.MM.yyyy").parse(values[i]).getTime());
-							}else{
-								m.invoke(t, values[i]);
-							}
-						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | ParseException e) {
-							e.printStackTrace();
-						}
-						
-					}
-					
-				}
+				parseFieldInto(t, values[i], fields[i]);
 				
 			}
 			
@@ -76,6 +58,32 @@ public class TournamentCreator extends ListenerAdapter{
 			channel.sendMessage(arr[position]).complete();
 			
 		}
+	}
+	
+	public static boolean parseFieldInto(Tournament t, String value, String field){
+		
+		for(Method m : Tournament.class.getMethods()){
+			
+			if(m.getName().equalsIgnoreCase("set" + field)){
+
+				System.out.println(field);
+				
+				try {
+					
+					if(m.getParameters()[0].getType().getName().equals(long.class.getName())){
+						
+						m.invoke(t, new SimpleDateFormat("DD.MM.yyyy").parse(value).getTime());
+					}else{
+						m.invoke(t, value);
+					}
+					return true;
+					
+				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | ParseException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return false;
 	}
 	
 	@Override

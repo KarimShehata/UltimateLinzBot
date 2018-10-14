@@ -63,6 +63,14 @@ public class ObservableList<T> extends ArrayList<T> implements IObservable{
 	}
 	
 	@Override
+	public boolean removeAll(Collection<?> c) {
+		boolean b = super.removeAll(c);
+		if(b)
+			notifyObservers();
+		return b;
+	}
+	
+	@Override
 	public void clear() {
 		super.clear();
 		notifyObservers();

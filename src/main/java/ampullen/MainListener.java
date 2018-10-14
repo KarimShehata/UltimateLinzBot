@@ -36,8 +36,8 @@ public class MainListener extends ListenerAdapter{
         Message message = event.getMessage();
         MessageChannel channel = event.getChannel();
         
-        System.out.println("On message: " + event.toString());
-        System.out.println("Message: " + message.getContentRaw() + " | " + message.getContentDisplay());
+        //System.out.println("On message: " + event.toString());
+        //System.out.println("Message: " + message.getContentRaw() + " | " + message.getContentDisplay());
         
         if(message.getContentRaw().equals("!embed")) {
         	

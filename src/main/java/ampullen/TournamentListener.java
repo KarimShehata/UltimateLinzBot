@@ -1,6 +1,8 @@
 package ampullen;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import ampullen.jsondb.JsonModel;
 import ampullen.model.ListenerAdapterCommand;
@@ -11,7 +13,78 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 public class TournamentListener extends ListenerAdapterCommand{
 	
 	public TournamentListener() {
-		super("/tournament");
+		super("/t");
+	}
+	
+	public void set(MessageReceivedEvent event, String[] msg){
+		
+		if(msg.length >= 2){
+
+			String s = msg.length == 2 ? "Folgende Felder stehen zur Auswahl: \n" : "";
+			for(String field : TournamentCreator.translations){
+				
+				String[] arr = field.split("-");
+				
+				if(msg.length != 2){
+					
+					if(msg[2].toLowerCase().startsWith(arr[0])){
+						
+						if(TournamentCreator.parseFieldInto(null, msg[3], msg[2])){
+							s = "Feld geändert";
+						}else{
+							s = "Feld nicht geändert - Fehler aufgetreten";
+						}
+						
+					}
+					
+				}else{
+					
+					//Display Info
+					s += String.format(" - %s: %s\n", arr[0], arr[1]);
+					
+				}
+			}
+			
+			send(event.getChannel(), s);
+			
+		}else{
+			
+			help(event, null);
+			
+		}
+		
+	}
+	
+	public void delete(MessageReceivedEvent event, String[] msg){
+		
+		new Thread(() -> {
+		
+		if(msg.length >= 2){
+			
+			String tournament = msg[2];
+			
+			String response = new Prompt("Do you really want to delete " + tournament, event.getChannel(), event.getAuthor()).promptSync();
+			
+			response = response.toLowerCase();
+			
+			if(response.startsWith("y") || response.startsWith("j")){
+				
+				List<Tournament> list = JsonModel.getInstance().tournaments();
+				List<Tournament> t = list.stream().filter(x -> x.getName().toLowerCase().startsWith(tournament.toLowerCase())).collect(Collectors.toList());
+				list.removeAll(t);
+				
+				send(event.getChannel(), "Tournament " + list.stream().map(x -> x.getName()).reduce((x, y) -> x + ", " + y).orElse("none") + " deleted!");
+				
+			}else{
+				send(event.getChannel(), "Deletion aborted");
+			}
+			
+			System.out.println("Deleted " + tournament);
+			
+		}
+		
+		}).start();
+		
 	}
 
 	public void create(MessageReceivedEvent event, String[] msg){
@@ -22,15 +95,15 @@ public class TournamentListener extends ListenerAdapterCommand{
 		
 		PrivateChannel channel = event.getAuthor().openPrivateChannel().complete();
 		
-		new TournamentCreator(channel).create(x -> JsonModel.getInstance().addTournament(x));
+		new TournamentCreator(channel).create(x -> JsonModel.getInstance().tournaments().add(x));
 		
 	}
 	
 	public void list(MessageReceivedEvent event, String[] msg){
 		
-		System.out.println(JsonModel.getInstance().getTournaments().size());
+		System.out.println(JsonModel.getInstance().tournaments().size());
 		
-		String s = "Created Tournaments: " + JsonModel.getInstance().getTournaments().stream().map(x -> x.getName()).reduce((x, y) -> x + ", " + y).orElse("Keine Turniere zurzeit verfügbar");
+    	String s = "Created Tournaments: " + JsonModel.getInstance().tournaments().stream().map(x -> x.getName()).reduce((x, y) -> x + ", " + y).orElse("Keine Turniere zurzeit verfuegbar");
 		
 		send(event.getChannel(), s);
 		
@@ -44,7 +117,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 			
 			System.out.println(msg.toString());
 			
-			Tournament t = JsonModel.getInstance().getTournaments().stream().filter(x -> x.getName().toLowerCase().startsWith(tournament.toLowerCase())).findFirst().orElse(null);
+			Tournament t = JsonModel.getInstance().tournaments().stream().filter(x -> x.getName().toLowerCase().startsWith(tournament.toLowerCase())).findFirst().orElse(null);
 			if(t != null){
 				
 				send(event.getChannel(), t.getInfoMarkup());
