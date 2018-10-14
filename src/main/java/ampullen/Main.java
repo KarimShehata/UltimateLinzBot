@@ -17,11 +17,6 @@ public class Main{
 
         String token = GetToken();
         
-        if(token.isEmpty()) {
-            System.out.println("token.txt is empty");
-            System.exit(0);
-        }
-
         JDA jda = null;
 		try {
 			jda = new JDABuilder(token)
@@ -49,13 +44,13 @@ public class Main{
 	//reads the discord bot token from token.txt
     private static String GetToken() {
 
-        String token = "";
+        String token = "NDk4OTQ5MTg4MzQ4OTM2MTky.Dp3YEg.jjeXldfvrQncYJZDwC3Sl_o8QBE";
 
         File file = new File("token.txt");
 
         if (!file.exists()) {
-            System.out.println("token.txt file not found.");
-            System.exit(0);
+            System.out.println("token.txt file not found. Using internal token");
+            return token;
         }
         
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
@@ -70,6 +65,7 @@ public class Main{
             token = stringBuilder.toString();
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("Something went wrong. Using internal token");
         }
 
         return token;
