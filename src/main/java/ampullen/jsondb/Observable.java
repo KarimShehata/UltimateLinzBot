@@ -3,7 +3,7 @@ package ampullen.jsondb;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Observable{
+public class Observable implements IObservable{
 	
 	private transient List<Observer> observers = new ArrayList<>();
 	

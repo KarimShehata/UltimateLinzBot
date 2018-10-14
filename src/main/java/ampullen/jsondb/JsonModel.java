@@ -6,15 +6,10 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONWriter;
-import org.omg.PortableInterceptor.AdapterStateHelper;
-
-import com.squareup.moshi.Json;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
@@ -26,28 +21,29 @@ public class JsonModel implements Observer{
 	private static final File BASE_DIRECTORY = new File(System.getProperty("user.dir") + "/db");
 	private Moshi moshi = new Moshi.Builder().build();
 	
-	private List<Tournament> tournaments = new ArrayList<>();
+	private ObservableList<Tournament> tournaments = new ObservableList<>();
 	
 	private static JsonModel instance = null;
 
-	public List<Tournament> getTournaments() {
+	public List<Tournament> tournaments() {
 		return tournaments;
 	}
 	
-	public void addTournament(Tournament t){
+	/*public void addTournament(Tournament t){
 		t.addObserver(this);
 		tournaments.add(t);
 		save(tournaments);
-	}
+	}*/
 
-	public void setTournaments(List<Tournament> tournaments) {
+	/*public void setTournaments(List<Tournament> tournaments) {
 		subscribe(tournaments);
 		this.tournaments = tournaments;
-	}
+	}*/
 	
 	private JsonModel() {
 		
 		load();
+		tournaments.addObserver(this);
 		
 	}
 	
@@ -111,10 +107,11 @@ public class JsonModel implements Observer{
 					String s = Files.readAllLines(file.toPath()).stream().reduce("", (x, y) -> x + y);
 					JsonAdapter adapter = moshi.adapter(t);
 					Object o = adapter.fromJson(s);
-					Object element = ((List)o).get(0);
+					ObservableList observablelist = new ObservableList<>(((List)o));
+					Object element = observablelist.get(0);
 					
 					if(element instanceof Tournament){
-						tournaments = ((List<Tournament>)o);
+						tournaments = ((ObservableList<Tournament>)observablelist);
 						//TODO Other Classes
 					}else{
 						System.out.println("Error 1");
@@ -136,7 +133,7 @@ public class JsonModel implements Observer{
 			
 			System.out.println(f.getName());
 			
-			if(f.getType().getName().equals(List.class.getName())){
+			if(f.getType().getName().equals(ObservableList.class.getName())){
 				list.add(f);
 			}
 			
@@ -145,9 +142,9 @@ public class JsonModel implements Observer{
 	}
 
 	@Override
-	public void update(Observable observable) {
+	public void update(IObservable observable) {
 		
-		if(observable instanceof Tournament){
+		if(observable instanceof Tournament || observable.getClass().isInstance(tournaments)){
 			
 			save(tournaments);
 			

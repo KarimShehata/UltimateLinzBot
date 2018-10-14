@@ -1,6 +1,7 @@
 package ampullen;
 
 import ampullen.jsondb.JsonModel;
+import ampullen.model.Tournament;
 
 public class JsonTest {
 
@@ -8,7 +9,13 @@ public class JsonTest {
 		
 		//j.addTournament(new Tournament("test", 25, "locat", "venuze", "asd"));
 		
-		System.out.println(JsonModel.getInstance().getTournaments().toString());
+		System.out.println(JsonModel.getInstance().tournaments().toString());
+		
+		Tournament t = new Tournament();
+		t.setName("asds");
+		t.setLocation("asfs");
+		
+		System.out.println(JsonModel.getInstance().tournaments().add(t));
 		
 	}
 	
