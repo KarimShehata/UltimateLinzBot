@@ -15,7 +15,7 @@ public class TournamentCreator extends ListenerAdapter{
 
 	PrivateChannel channel;
 	
-	private String[] arr = new String[]{"Wie heiﬂt das Turnier?", "Wann ist das Turnier?", "Wo ist das Turnier?", "In welchem Format?", "Mixed, Open, Women?", "Teamfee?", "Playersfee?", "Registration Deadline?", "Payment Deadline?"};
+	private String[] arr = new String[]{"Wie heiﬂt das Turnier?", "Wann ist das Turnier?", "Wo ist das Turnier?", "In welchem Format?", "Mixed, Open, Women?", "Teamfee?", "Playersfee?", "Registration Deadline?", "Payment Deadline?", "Ultimate Central Link?"};
 	public static final String[] fields = new String[]{"name", "date", "location", "format", "division", "teamFee", "playersFee", "registrationDeadline", "paymentDeadline", "uclink"};
 	public static final String[] translations = new String[]{"name-Name des Turniers", "datum-Datum", "ort-Ort des Turniers", "format-Format (z.B. 5v5 Continous)", "division-Division (Mixed, Women, Open, Master)", "teamfee-Teamfee", "playersfee-Playersfee", "registrationdeadline-Deadline zur Registrierung", "paymentdeadline-Deadline zur Teamfeezahlung", "link-Ultimate Central Link"};
 	String[] values;
@@ -51,6 +51,7 @@ public class TournamentCreator extends ListenerAdapter{
 			channel.sendMessage("Das Turnier wurde erstellt!").complete();
 			channel.sendMessage(t.toString()).complete();
 			channel.getJDA().removeEventListener(this);
+			
 			consumer.accept(t);
 			
 		}else{

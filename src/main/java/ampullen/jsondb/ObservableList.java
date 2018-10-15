@@ -77,6 +77,22 @@ public class ObservableList<T> extends ArrayList<T> implements IObservable{
 	}
 	
 	@Override
+	public boolean addAll(Collection<? extends T> c) {
+		boolean b = super.addAll(c);
+		if(b)
+			notifyObservers();
+		return b;
+	}
+	
+	@Override
+	public boolean addAll(int index, Collection<? extends T> c) {
+		boolean b = super.addAll(index, c);
+		if(b)
+			notifyObservers();
+		return b;
+	}
+	
+	@Override
 	public T set(int index, T element) {
 		T t = super.set(index, element);
 		if(t != null)

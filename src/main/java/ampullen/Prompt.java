@@ -44,7 +44,7 @@ public class Prompt extends ListenerAdapter{
 		return ret;
 	}
 	
-	public void promtAsync(Consumer<String> callback){
+	public void promptAsync(Consumer<String> callback){
 		
 		this.callback = callback;
 

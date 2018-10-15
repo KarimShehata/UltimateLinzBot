@@ -53,10 +53,18 @@ public class JsonModel implements Observer{
 			BASE_DIRECTORY.mkdirs();
 		}
 		
+		/*boolean empty = false;
+		if(list.size() == 0) {
+			list.add((T)new Object());
+			empty = true;
+			Your mom gay
+		}*/
+		
 		String name = "";
 		Type type = null;
 		
-		if(list.get(0) instanceof Tournament){
+		
+		if(list.getClass().isInstance(new ObservableList<Tournament>())){
 			name = "Tournament";
 			type = Types.newParameterizedType(List.class, Tournament.class);
 		}//TODO Other Classes
@@ -64,6 +72,9 @@ public class JsonModel implements Observer{
 		
 		File f = new File(BASE_DIRECTORY.getAbsolutePath() + "\\" + name + ".json");
 
+		//if(empty)
+		//	list.clear();
+		
 		JsonAdapter<List<T>> adapter = moshi.adapter(type);
 		String s = adapter.toJson(list);
 		s.replaceAll("[€$äöüÄÖÜ]", "");
@@ -108,13 +119,14 @@ public class JsonModel implements Observer{
 					String s = Files.readAllLines(file.toPath()).stream().reduce("", (x, y) -> x + y);
 					JsonAdapter adapter = moshi.adapter(t);
 					Object o = adapter.fromJson(s);
-					ObservableList observablelist = new ObservableList<>(((List)o));
+					ObservableList observablelist = new ObservableList(((List)o));
 					if(observablelist.size() > 0){
 						
 						Object element = observablelist.get(0);
 						
 						if(element instanceof Tournament){
 							tournaments = ((ObservableList<Tournament>)observablelist);
+							tournaments.forEach(x -> x.addObserver(this));
 							//TODO Other Classes
 						}else{
 							System.out.println("Error 1");

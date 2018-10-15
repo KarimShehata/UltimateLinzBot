@@ -1,6 +1,7 @@
 package ampullen.model;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import ampullen.jsondb.Observable;
 
@@ -19,6 +20,9 @@ public class Tournament extends Observable{
 	String schedule;
 	String ucLink;
 	String comment;
+	
+	private long announcementChannel;
+	private long discussionChannel;
 	
 	public Tournament(){}
 	
@@ -39,6 +43,24 @@ public class Tournament extends Observable{
 
 	public String getName() {
 		return name;
+	}
+
+	public long getAnnouncementChannel() {
+		return announcementChannel;
+	}
+
+	public void setAnnouncementChannel(long announcementChannel) {
+		this.announcementChannel = announcementChannel;
+		notifyObservers();
+	}
+
+	public long getDiscussionChannel() {
+		return discussionChannel;
+	}
+
+	public void setDiscussionChannel(long discussionChannel) {
+		this.discussionChannel = discussionChannel;
+		notifyObservers();
 	}
 
 	public void setName(String name) {
@@ -178,7 +200,7 @@ public class Tournament extends Observable{
 		
 		s += (schedule != null ? String.format("**Schedule:** %s\n\n", schedule) : "");
 		s += (ucLink != null ? String.format("**Ultimate Central:** %s\n\n", ucLink) : "");
-		s += (ucLink != null ? String.format("**Kommentar:** %s", comment) : "");
+		s += (comment != null ? String.format("**Kommentar:** %s", comment) : "");
 		
 		return s;
 		
