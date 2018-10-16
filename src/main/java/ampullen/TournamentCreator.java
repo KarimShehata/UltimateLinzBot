@@ -61,6 +61,20 @@ public class TournamentCreator extends ListenerAdapter{
 		}
 	}
 	
+	public static String getFieldFromLabel(String label) {
+		
+		for(int i = 0 ; i < translations.length ; i++) {
+			
+			if(translations[i].equals(label) || translations[i].split("-")[0].equals(label)) {
+				
+				return fields[i];
+				
+			}
+		}
+		return null;
+		
+	}
+	
 	public static boolean parseFieldInto(Tournament t, String value, String field){
 		
 		for(Method m : Tournament.class.getMethods()){
