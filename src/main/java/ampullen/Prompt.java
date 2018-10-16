@@ -4,10 +4,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.requests.RequestFuture;
 
 public class Prompt extends ListenerAdapter{
 	
@@ -18,6 +20,10 @@ public class Prompt extends ListenerAdapter{
 	Consumer<String> callback = null;
 	User user;
 	
+	Message tempMessage;
+	
+	long deleteDelay = -1L;
+	
 	String ret = null;
 
 	public Prompt(String prompt, MessageChannel channel, User promptedUser) {
@@ -27,9 +33,15 @@ public class Prompt extends ListenerAdapter{
 		this.user = promptedUser;
 	}
 	
+	public Prompt setDelete(long millis) {
+		deleteDelay = millis;
+		System.out.println("Delete set to " + millis);
+		return this;
+	}
+	
 	public String promptSync(){
-		
-		channel.sendMessage(prompt).complete();
+
+		tempMessage = channel.sendMessage(prompt).complete();
 		channel.getJDA().addEventListener(this);
 		latch = new CountDownLatch(1);
 		try {
@@ -48,7 +60,7 @@ public class Prompt extends ListenerAdapter{
 		
 		this.callback = callback;
 
-		channel.sendMessage(prompt).complete();
+		tempMessage = channel.sendMessage(prompt).complete();
 		channel.getJDA().addEventListener(this);
 	}
 	
@@ -61,9 +73,14 @@ public class Prompt extends ListenerAdapter{
 			if(latch != null){
 				latch.countDown();
 			}else if(callback != null){
-				callback.accept(ret);
 				channel.getJDA().removeEventListener(this);
+				callback.accept(ret);
+			}else {
+				System.out.println("Impossible case");
+				return;
 			}
+			MessageTimer.deleteAfter(tempMessage, deleteDelay);
+			MessageTimer.deleteAfter(event.getMessage(), deleteDelay);
 			System.out.println("Callback");
 		}
 		System.out.println("Wrong channel or user");
