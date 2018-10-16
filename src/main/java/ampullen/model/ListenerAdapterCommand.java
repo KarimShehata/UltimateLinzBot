@@ -3,7 +3,9 @@ package ampullen.model;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import ampullen.MessageTimer;
 import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -11,9 +13,11 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 public abstract class ListenerAdapterCommand extends ListenerAdapter{
 	
 	String cmd;
+	Message lastMessage;
 	
 	public ListenerAdapterCommand(String cmd) {
 		this.cmd = cmd;
+		this.lastMessage = null;
 	}
 	
 	@Override
@@ -28,6 +32,7 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 				if(msg.startsWith(cmd)){
 					
 					System.out.println("Message: " + event.getMessage().getContentDisplay() + " MessageId " + event.getMessageId());
+					lastMessage = event.getMessage();
 					boolean b = command(event, msg);
 					
 					if(!b){
@@ -55,7 +60,17 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 			if(m.getName().equalsIgnoreCase(tokens[1])){
 				
 				try {
-					m.invoke(this, event, tokens);
+					if(m.isAnnotationPresent(Blocking.class)) {
+						new Thread(() -> {
+							try {
+								m.invoke(this, event, tokens);
+							} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+								e.printStackTrace();
+							}
+						}).start();
+					}else {
+						m.invoke(this, event, tokens);
+					}
 					return true;
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 					//TODO, Command not found, help()
@@ -63,11 +78,20 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 				}
 			}
 		}
+		deleteCommandAfter(5000);
 		return false;
 	}
 	
 	public void send(MessageChannel c, String msg){
 		c.sendMessage(msg).submit();
 	}
+	
+	public Message sendSync(MessageChannel c, String msg) {
+		return c.sendMessage(msg).complete();
+	}
 
+	public void deleteCommandAfter(long millis) {
+		MessageTimer.deleteAfter(lastMessage, millis);
+	}
+	
 }
