@@ -4,9 +4,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import ampullen.jsondb.Observable;
+import ampullen.jsondb.Observer;
 
 public class Tournament extends Observable{
 
+	int id;
 	String name;
 	long date;
 	String location;
@@ -20,15 +22,17 @@ public class Tournament extends Observable{
 	String schedule;
 	String ucLink;
 	String comment;
+	TournamentVotes votes = new TournamentVotes();
 	
 	private long announcementChannel;
 	private long discussionChannel;
 	
 	public Tournament(){}
 	
-	public Tournament(String name, long date, String location, String format, String division, String teamFee,
+	public Tournament(int id, String name, long date, String location, String format, String division, String teamFee,
 			String playersFee, long registrationDeadline, long paymentDeadline) {
 		super();
+		this.id = id;
 		this.name = name;
 		this.date = date;
 		this.location = location;
@@ -39,6 +43,29 @@ public class Tournament extends Observable{
 		this.playersFee = playersFee;
 		this.registrationDeadline = registrationDeadline;
 		this.paymentDeadline = paymentDeadline;
+	}
+
+	@Override
+	public void addObserver(Observer o) {
+		super.addObserver(o);
+		this.votes.addObserver(o);
+	}
+	
+	public TournamentVotes getVotes() {
+		return votes;
+	}
+
+	/*public void setVotes(TournamentVotes votes) {
+		this.votes = votes;
+	}*/
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+		notifyObservers();
 	}
 
 	public String getName() {

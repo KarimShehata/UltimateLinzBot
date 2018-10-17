@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.function.Consumer;
 
+import ampullen.jsondb.JsonModel;
 import ampullen.model.Tournament;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
@@ -51,6 +52,8 @@ public class TournamentCreator extends ListenerAdapter{
 			channel.sendMessage("Das Turnier wurde erstellt!").complete();
 			channel.sendMessage(t.toString()).complete();
 			channel.getJDA().removeEventListener(this);
+			
+			t.setId(JsonModel.getInstance().tournaments().stream().mapToInt(x -> x.getId()).max().orElse(-1) + 1);
 			
 			consumer.accept(t);
 			

@@ -15,6 +15,7 @@ import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 
 import ampullen.model.Tournament;
+import ampullen.model.TournamentVotes;
 
 public class JsonModel implements Observer{
 
@@ -124,7 +125,7 @@ public class JsonModel implements Observer{
 						
 						Object element = observablelist.get(0);
 						
-						if(element instanceof Tournament){
+						if(element instanceof Tournament || element instanceof TournamentVotes){
 							tournaments = ((ObservableList<Tournament>)observablelist);
 							tournaments.forEach(x -> x.addObserver(this));
 							//TODO Other Classes
