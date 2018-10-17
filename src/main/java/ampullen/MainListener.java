@@ -84,7 +84,7 @@ public class MainListener extends ListenerAdapter{
 		
 	}
 	
-	@Override
+	/*@Override
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
 		System.out.println("onMessageReactionAdd");
 		
@@ -111,6 +111,6 @@ public class MainListener extends ListenerAdapter{
 		}
 		
 		super.onMessageReactionAdd(event);
-	}
+	}*/
 
 }
