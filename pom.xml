@@ -34,11 +34,11 @@
 	    <type>pom</type>
 	  </dependency>
 	  <!-- Kotlin lib -->
-	  <!-- <dependency>
-        <groupId>org.jetbrains.kotlin</groupId>
-        <artifactId>kotlin-stdlib</artifactId>
-        <version>${kotlin.version}</version>
-      </dependency> -->
+	    <!--<dependency>
+	        <groupId>org.jetbrains.kotlin</groupId>
+	        <artifactId>kotlin-stdlib</artifactId>
+	        <version>${kotlin.version}</version>
+	    </dependency>-->
       <!-- Json -->
       <dependency>
 		  <groupId>com.squareup.moshi</groupId>

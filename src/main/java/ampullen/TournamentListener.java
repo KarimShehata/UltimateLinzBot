@@ -14,6 +14,7 @@ import ampullen.model.Tournament;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -228,6 +229,10 @@ public class TournamentListener extends ListenerAdapterCommand{
 			m.addReaction(event.getJDA().getEmotesByName(":punch:", true).stream().findFirst().orElse(null));
 			m.addReaction(event.getJDA().getEmotesByName(":thumbsdown:", true).stream().findFirst().orElse(null));
 			m.addReaction(":laughing:");*/
+			new EmoteLimiter(m)
+			.setAllowedEmotes(Arrays.asList("in", "50", "out"))
+			.setDisplayAllowed(true)
+			.setLimitReactions(true).start(event.getChannel());
 			
 			x.setAnnouncementChannel(newc.getIdLong());
 			
@@ -243,10 +248,18 @@ public class TournamentListener extends ListenerAdapterCommand{
 	@Blocking
 	public void test(MessageReceivedEvent event, String[] msg) {
 		
-		String response = new Prompt("PromptTest", event.getChannel(), event.getAuthor()).promptSync();
+		/*String response = new Prompt("PromptTest", event.getChannel(), event.getAuthor()).promptSync();
 		System.out.println(response);
 		
-		send(event.getChannel(), response);
+		send(event.getChannel(), response);*/
+
+		Message m = event.getChannel().getMessageById(501649064887189504L).complete();
+		
+		new EmoteLimiter(m)
+		.setAllowedEmotes(Arrays.asList("in", "50", "out"))
+		.setDisplayAllowed(true)
+		.setLimitReactions(true).start(event.getChannel());
+		System.out.println("test");
 		
 	}
 	

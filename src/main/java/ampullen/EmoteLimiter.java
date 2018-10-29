@@ -2,6 +2,7 @@ package ampullen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Channel;
@@ -32,17 +33,40 @@ public class EmoteLimiter extends ListenerAdapter{
 	}
 	
 	public void start(MessageChannel c) {
+		Stream<Message> sm = 
+			messages.stream()
+				.map(x -> c.getMessageById(x).complete());
 		
-		messages.stream()
-		.map(x -> c.getMessageById(x).complete())
-		.forEach(x -> {
-			allowedEmotes.stream()
-				.map(y -> getEmote(y, (Channel)c))
-				.forEach(y -> {
-					x.addReaction(y).complete();
-					System.out.println(y.getName());
-				});
-		});
+		if(sm.allMatch(x -> x.getReactions().size() == 0)) {
+			
+			sm.forEach(x -> {
+				
+				allowedEmotes.stream()
+					.map(y -> getEmote(y, (Channel)c))
+					.forEach(y -> {
+						x.addReaction(y).complete();
+						System.out.println(y.getName());
+					});
+			});
+			
+		}/*else {
+			
+			sm.forEach(x -> {
+				
+				x.getReactions().stream()
+					.map(y -> y.getUsers().complete())
+					.flatMap(y -> y.stream())
+					.distinct()
+					.forEach(y -> {
+						
+						x.getReactions().stream().
+						.sorted((a, b) -> Long.compare(a.get, y))
+						
+					});
+				
+			});
+			
+		}*/
 		
 		c.getJDA().addEventListener(this);
 	}
