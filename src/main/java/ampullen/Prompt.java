@@ -34,8 +34,10 @@ public class Prompt extends ListenerAdapter{
 	}
 	
 	public Prompt setDelete(long millis) {
-		deleteDelay = millis;
-		System.out.println("Delete set to " + millis);
+		if(millis != -1){
+			deleteDelay = millis;
+			System.out.println("Delete set to " + millis);
+		}
 		return this;
 	}
 	
@@ -79,8 +81,10 @@ public class Prompt extends ListenerAdapter{
 				System.out.println("Impossible case");
 				return;
 			}
-			MessageTimer.deleteAfter(tempMessage, deleteDelay);
-			MessageTimer.deleteAfter(event.getMessage(), deleteDelay);
+			if(deleteDelay != -1){
+				MessageTimer.deleteAfter(tempMessage, deleteDelay);
+				MessageTimer.deleteAfter(event.getMessage(), deleteDelay);
+			}
 			System.out.println("Callback");
 		}
 		System.out.println("Wrong channel or user");

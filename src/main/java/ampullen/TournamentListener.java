@@ -253,13 +253,23 @@ public class TournamentListener extends ListenerAdapterCommand{
 		
 		send(event.getChannel(), response);*/
 
-		Message m = event.getChannel().getMessageById(501649064887189504L).complete();
+		/*Message m = event.getChannel().getMessageById(501649064887189504L).complete();
 		
 		new EmoteLimiter(m)
 		.setAllowedEmotes(Arrays.asList("in", "50", "out"))
 		.setDisplayAllowed(true)
 		.setLimitReactions(true).start(event.getChannel());
-		System.out.println("test");
+		System.out.println("test");*/
+		
+		Conversation c = new Conversation()
+				.addStepA("Wie gehts dir?", (x, y) -> y.put("1", x))
+				.addStep("Wirklich?", x -> x.equals("Ja") ? "true" : "false")
+				.addStep("false-Nice", x -> null)
+				.addStep("true-Consistent", x -> null)
+				.start(event.getChannel(), event.getAuthor())
+				.finished(x -> System.out.println("How: " + x.get("1")));
+			
+		;
 		
 	}
 	
