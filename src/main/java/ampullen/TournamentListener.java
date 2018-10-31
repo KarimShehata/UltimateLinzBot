@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.Permission;
 
 public class TournamentListener extends ListenerAdapterCommand{
 	
@@ -75,7 +76,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 				prompt += String.format(" - %s: %s\n", arr[0], arr[1]);
 				
 			}
-			prompt += "Welches Infofeld willst du ändern?";
+			prompt += "Welches Infofeld willst du ï¿½ndern?";
 			
 			parameter = new Prompt(prompt, event.getChannel(), event.getAuthor()).setDelete(30000).promptSync();
 			
@@ -318,7 +319,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 	public void help(MessageReceivedEvent event, String[] msg){
 		
 		String help = "Mit /tournament erstellst und verwaltest du Turniere\n"
-				+ "Alle verfügbaren Optionen:"
+				+ "Alle verfï¿½gbaren Optionen:"
 				+ "  * help - Ruft die Hilfe auf"
 				+ "  * create - erstellt ein neues Turnier"
 				+ "  * info x - Info zu Turnier x";
@@ -328,7 +329,4 @@ public class TournamentListener extends ListenerAdapterCommand{
 		System.out.println("help");
 		
 	}
-	
-	
-
 }

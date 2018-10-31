@@ -7,38 +7,35 @@ import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 
 public class Main{
 
+    public static JDA jda;
+
 	public static void main(String[] args){
 
         String token = GetToken();
-        
-        JDA jda = null;
+
 		try {
 			jda = new JDABuilder(token)
 					.setGame(Game.playing("Ultimate Frisbee"))
 					.build();
 		} catch (LoginException e) {
-			e.printStackTrace();
+		    e.printStackTrace();
 		}
 
 		//JDABot bot = jda.asBot();
-		jda.addEventListener(new EventListener() {
-
-			public void onEvent(Event event) {
-				if(event instanceof ReadyEvent) {
-					System.out.println("API is ready");
-				}
-			}
-		});
+		jda.addEventListener((EventListener) event -> {
+            if(event instanceof ReadyEvent) {
+                System.out.println("API is ready");
+            }
+        });
 		jda.addEventListener(new MainListener());
 		jda.addEventListener(new TournamentListener());
-
-		
+        jda.addEventListener(new RegistrationListener());
+        //jda.addEventListener(new TestListener());
 	}
 
 	//reads the discord bot token from token.txt
@@ -68,7 +65,7 @@ public class Main{
             System.out.println("Something went wrong. Using internal token");
         }
 
-        return token;
+        return token.trim();
     }
 
 }
