@@ -87,7 +87,7 @@ public class Prompt extends ListenerAdapter{
 			}
 			System.out.println("Callback");
 		}
-		System.out.println("Wrong channel or user");
+		//System.out.println("Wrong channel or user");
 	}
 	
 }

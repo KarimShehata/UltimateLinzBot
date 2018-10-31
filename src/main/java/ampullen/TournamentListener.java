@@ -262,12 +262,15 @@ public class TournamentListener extends ListenerAdapterCommand{
 		System.out.println("test");*/
 		
 		Conversation c = new Conversation()
-				.addStepA("Wie gehts dir?", (x, y) -> y.put("1", x))
-				.addStep("Wirklich?", x -> x.equals("Ja") ? "true" : "false")
-				.addStep("false-Nice", x -> null)
-				.addStep("true-Consistent", x -> null)
+				.build()
+				.addStepA("Wie gehts dir?", (x, y) -> y.c.put("1", x))
+				.addOption("Wirklich?", x -> x.equals("Ja") ? "true" : "false")
+					.addStep("false", "Nice", x -> null)
+					.addStep("true", "Consistent", x -> null)
+					.done()
+				.finished(x -> System.out.println("How: " + x.c.get("1")))
 				.start(event.getChannel(), event.getAuthor())
-				.finished(x -> System.out.println("How: " + x.get("1")));
+				.out();
 			
 		;
 		
