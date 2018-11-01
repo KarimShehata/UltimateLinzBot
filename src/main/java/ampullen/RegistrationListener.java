@@ -1,5 +1,6 @@
 package ampullen;
 
+import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
@@ -8,7 +9,6 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 public class RegistrationListener extends ListenerAdapter {
@@ -74,30 +74,40 @@ public class RegistrationListener extends ListenerAdapter {
             case NotStarted:
                 break;
             case Name:
-                if (message.length() > 1)
+                if (message.length() > 1) {
+                    ultimateLinzUser.UserData.Name = message;
                     return true;
+                }
                 break;
             case Surname:
-                if (message.length() > 1)
+                if (message.length() > 1) {
+                    ultimateLinzUser.UserData.Surname = message;
                     return true;
+                }
                 break;
             case Sex:
                 break;
             case Birthday:
                 DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMAN);
                 try {
-                    Date birthdate = dateFormat.parse(message);
+                    ultimateLinzUser.UserData.Birthday = dateFormat.parse(message);
                     return true;
                 } catch (ParseException e) {
                     e.printStackTrace();
                     return false;
                 }
             case Email:
-                return Utilities.validateEmailAddress(message);
+                if(Utilities.validateEmailAddress(message)){
+                    ultimateLinzUser.UserData.Email = message;
+                    return true;
+                }
             case Phone:
                 try {
-                    int phoneNumber = Integer.parseInt(message);
-                    return message.length() > 9;
+                    Integer.parseInt(message);
+                    if(message.length() > 9) {
+                        ultimateLinzUser.UserData.Phone = message;
+                        return true;
+                    }
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                     return false;
@@ -130,7 +140,21 @@ public class RegistrationListener extends ListenerAdapter {
 
         if (ultimateLinzUser == null) return;
 
-        // todo check if valid reaction
+        MessageReaction messageReaction = privateMessageReactionAddEvent.getReaction();
+        String name = messageReaction.getReactionEmote().getName();
+
+        switch (name){
+            case Utilities.FemaleEmoteString:
+                ultimateLinzUser.UserData.Sex = Sex.Female;
+                break;
+            case Utilities.MaleEmoteString:
+                ultimateLinzUser.UserData.Sex = Sex.Male;
+                break;
+            default:
+                //ignore reaction
+                return;
+        }
+
         sendNextRegistrationMessage(ultimateLinzUser);
     }
 
@@ -148,13 +172,16 @@ public class RegistrationListener extends ListenerAdapter {
             case Birthday:
             case Email:
             case Phone:
+                ultimateLinzUser.User.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(message).queue());
+                break;
             case Done:
                 ultimateLinzUser.User.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(message).queue());
+                System.out.println(ultimateLinzUser.UserData.toString());
                 break;
             case Sex:
                 ultimateLinzUser.User.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(message).queue(message1 -> {
-                    message1.addReaction("\ud83d\udeba").queue();
-                    message1.addReaction("\ud83d\udeb9").queue();
+                    message1.addReaction(Utilities.FemaleEmoteString).queue();
+                    message1.addReaction(Utilities.MaleEmoteString).queue();
                 }));
                 break;
         }

@@ -5,12 +5,14 @@ import net.dv8tion.jda.core.entities.User;
 public class UltimateLinzUser {
 
     public User User;
+    public UserData UserData;
     public boolean IsRegistrationComplete;
     public RegistrationService.RegistrationStep RegistrationStep;
 
     public UltimateLinzUser(User user) {
         User = user;
         RegistrationStep = RegistrationService.RegistrationStep.NotStarted;
+        UserData = new UserData();
     }
 
     @Override
