@@ -1,4 +1,4 @@
-package ampullen;
+package ampullen.helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +58,7 @@ public class Conversation implements Cloneable{
 		List<Object> order = new ArrayList<>();
 		Map<String, String> questions = new HashMap<>();
 		
-		Conversation c;
+		public Conversation c;
 		Option parent;
 		
 		List<Consumer<Option>> finished = new ArrayList<>();

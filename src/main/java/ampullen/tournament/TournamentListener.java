@@ -1,4 +1,4 @@
-package ampullen;
+package ampullen.tournament;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import ampullen.MessageTimer;
+import ampullen.helper.Conversation;
+import ampullen.helper.EmoteLimiter;
+import ampullen.helper.Prompt;
 import ampullen.jsondb.JsonModel;
 import ampullen.model.Blocking;
 import ampullen.model.ListenerAdapterCommand;

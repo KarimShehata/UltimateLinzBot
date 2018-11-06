@@ -1,8 +1,9 @@
-package ampullen;
+package ampullen.helper;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
+import ampullen.MessageTimer;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;

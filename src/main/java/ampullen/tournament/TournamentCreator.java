@@ -1,4 +1,4 @@
-package ampullen;
+package ampullen.tournament;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
