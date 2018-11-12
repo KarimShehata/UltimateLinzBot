@@ -1,5 +1,8 @@
-package ampullen;
+package ampullen.registration;
 
+import ampullen.Sex;
+import ampullen.UltimateLinzUser;
+import ampullen.Utilities;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
@@ -163,7 +166,7 @@ public class RegistrationListener extends ListenerAdapter {
         UltimateLinzUser finalUltimateLinzUser = ultimateLinzUser;
 
         int index = finalUltimateLinzUser.RegistrationStep.ordinal() - 1;
-        String message = Messages.RegistrationForm[index];
+        String message = RegistrationMessages.RegistrationForm[index];
 
         switch (finalUltimateLinzUser.RegistrationStep) {
             case NotStarted:
@@ -189,7 +192,7 @@ public class RegistrationListener extends ListenerAdapter {
 
     private void StartRegistration(UltimateLinzUser ultimateLinzUser) {
         ultimateLinzUser.RegistrationStep = ultimateLinzUser.RegistrationStep.next();
-        ultimateLinzUser.User.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(Messages.WelcomeMessage).queue());
+        ultimateLinzUser.User.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(RegistrationMessages.WelcomeMessage).queue());
         sendRegistrationMessage(ultimateLinzUser);
     }
 }

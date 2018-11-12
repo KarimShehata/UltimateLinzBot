@@ -4,6 +4,7 @@ import java.io.*;
 
 import javax.security.auth.login.LoginException;
 
+import ampullen.registration.RegistrationListener;
 import ampullen.tournament.TournamentListener;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;

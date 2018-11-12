@@ -1,5 +1,6 @@
 package ampullen;
 
+import ampullen.registration.RegistrationService;
 import net.dv8tion.jda.core.entities.User;
 
 public class UltimateLinzUser {

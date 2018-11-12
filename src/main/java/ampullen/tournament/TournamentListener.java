@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import ampullen.MessageTimer;
+import ampullen.Utilities;
 import ampullen.helper.Conversation;
 import ampullen.helper.EmoteLimiter;
 import ampullen.helper.Prompt;
@@ -15,10 +16,10 @@ import ampullen.jsondb.JsonModel;
 import ampullen.model.Blocking;
 import ampullen.model.ListenerAdapterCommand;
 import ampullen.model.Tournament;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -27,7 +28,6 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.Permission;
 
 public class TournamentListener extends ListenerAdapterCommand{
 	
@@ -311,29 +311,31 @@ public class TournamentListener extends ListenerAdapterCommand{
 		System.out.println(msg.toString());
 		
 		if(t != null){
-			
 			MessageTimer.deleteAfter(sendSync(event.getChannel(), t.getInfoMarkup()), 30000);
-			
 		}else{
 			MessageTimer.deleteAfter(sendSync(event.getChannel(), "Turnier konnte nicht gefunden werden!"), 15000);
 		}
-		deleteCommandAfter(10000);
-		
-		
+		deleteCommandAfter(3000);
 	}
 	
 	@Override
 	public void help(MessageReceivedEvent event, String[] msg){
-		
-		String help = "Mit /tournament erstellst und verwaltest du Turniere\n"
-				+ "Alle verf�gbaren Optionen:"
-				+ "  * help - Ruft die Hilfe auf"
-				+ "  * create - erstellt ein neues Turnier"
-				+ "  * info x - Info zu Turnier x";
-		
-		send(event.getChannel(), help);
+
+		int padding = 12;
+
+		String info = "Mit \"/tournament\" oder \"/t\" erstellst und verwaltest du Turniere\n"
+				+ "Alle verfügbaren Optionen:\n";
+
+		String commands = Utilities.padRight("help", padding) + "Ruft die Hilfe auf\n"
+						+ Utilities.padRight("create", padding) + "Erstellt ein neues Turnier\n"
+						+ Utilities.padRight("info [x]", padding) + "Infos zu aktuellen Turnier [x = Turniername]";
+
+		MessageBuilder messageBuilder = new MessageBuilder();
+		messageBuilder.append(info);
+		messageBuilder.appendCodeBlock(commands, "");
+
+		send(event.getChannel(), messageBuilder.build());
 		
 		System.out.println("help");
-		
 	}
 }

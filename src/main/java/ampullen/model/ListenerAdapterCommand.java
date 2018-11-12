@@ -85,6 +85,10 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 	public void send(MessageChannel c, String msg){
 		c.sendMessage(msg).submit();
 	}
+
+	public void send(MessageChannel messageChannel, Message message){
+		messageChannel.sendMessage(message).submit();
+	}
 	
 	public Message sendSync(MessageChannel c, String msg) {
 		return c.sendMessage(msg).complete();

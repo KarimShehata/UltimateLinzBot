@@ -1,6 +1,6 @@
-package ampullen;
+package ampullen.registration;
 
-public class Messages {
+public class RegistrationMessages {
 
     public static String WelcomeMessage = "Hallo!\n" +
             "Ich bin der UltimateLinz-Bot und werde dich durch die Anmeldung führen.\n" +

@@ -15,4 +15,11 @@ public class Utilities {
         return matcher.find();
     }
 
+    public static String padRight(String string, int n) {
+        return String.format("%1$-" + n + "s", string);
+    }
+
+    public static String padLeft(String string, int n) {
+        return String.format("%1$" + n + "s", string);
+    }
 }

@@ -119,5 +119,4 @@ public class TournamentCreator extends ListenerAdapter{
 			
 		}
 	}
-	
 }

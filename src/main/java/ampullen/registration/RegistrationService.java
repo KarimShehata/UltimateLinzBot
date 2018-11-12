@@ -1,4 +1,6 @@
-package ampullen;
+package ampullen.registration;
+
+import ampullen.UltimateLinzUser;
 
 import java.util.ArrayList;
 
