@@ -4,11 +4,15 @@ import java.io.*;
 
 import javax.security.auth.login.LoginException;
 
+import ampullen.jsondb.JsonModel;
+import ampullen.model.Tournament;
 import ampullen.registration.RegistrationListener;
 import ampullen.tournament.TournamentListener;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 
@@ -32,12 +36,39 @@ public class Main{
 		jda.addEventListener((EventListener) event -> {
             if(event instanceof ReadyEvent) {
                 System.out.println("API is ready");
+                
+                initTournaments(jda);
             }
         });
 		jda.addEventListener(new MainListener());
 		jda.addEventListener(new TournamentListener());
         jda.addEventListener(new RegistrationListener());
         //jda.addEventListener(new TestListener());
+	}
+	
+	private static void initTournaments(JDA jda) {
+		
+		for(Tournament t : JsonModel.getInstance().tournaments()){
+			TextChannel announcementchannel = jda.getTextChannelById(t.getAnnouncementChannel());
+			if(announcementchannel != null) {
+				if(t.getName().contains("anta")) {
+					t.getVotes().setAttendanceMsg(announcementchannel.getMessageById(501334882945859584L).complete());
+				}
+				try {
+					t.getVotes().setAttendanceMsg(announcementchannel.getMessageById(t.getVotes().attendanceMsgId).complete());
+				}catch(Exception e) {
+					System.out.println("Attendancemessage not found");
+				}
+				try {
+					t.getVotes().setEatingMsg(announcementchannel.getMessageById(t.getVotes().eatingMsgId).complete());
+				}catch(Exception e) {
+					System.out.println("Eatingmessage not found");
+				}
+				
+			}
+		};
+		
+		
 	}
 
 	//reads the discord bot token from token.txt

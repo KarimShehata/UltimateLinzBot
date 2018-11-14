@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import ampullen.MessageTimer;
 import ampullen.Utilities;
 import ampullen.helper.Conversation;
-import ampullen.helper.EmoteLimiter;
 import ampullen.helper.Prompt;
 import ampullen.jsondb.JsonModel;
 import ampullen.model.Blocking;
@@ -20,6 +19,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -180,11 +180,20 @@ public class TournamentListener extends ListenerAdapterCommand{
 
 	public void create(MessageReceivedEvent event, String[] msg){
 		
-		String response = "Der Erstellungsprozess wird als Privatnachricht fortgesetzt";
+		PrivateChannel channel;
 		
-		event.getChannel().sendMessage(response).complete();
+		if(event.getChannel().getType() != ChannelType.PRIVATE) {
+			
+			String response = "Der Erstellungsprozess wird als Privatnachricht fortgesetzt";
+			
+			event.getChannel().sendMessage(response).complete();
+			
+			channel = event.getAuthor().openPrivateChannel().complete();
+			
+		}else {
+			channel = event.getPrivateChannel();
+		}
 		
-		PrivateChannel channel = event.getAuthor().openPrivateChannel().complete();
 		
 		Consumer<Tournament> consumer = x -> {
 			
@@ -228,20 +237,20 @@ public class TournamentListener extends ListenerAdapterCommand{
 			
 			//Create Info post
 			Message m = newc.sendMessage(x.getInfoMarkup()).complete();
-			newc.pinMessageById(m.getIdLong()).complete();
+			x.getVotes().setAttendanceMsg(m);
 			
-			/*m.addReaction(event.getJDA().getEmotesByName(":thumbsup:", true).stream().findFirst().orElse(null));
-			m.addReaction(event.getJDA().getEmotesByName(":punch:", true).stream().findFirst().orElse(null));
-			m.addReaction(event.getJDA().getEmotesByName(":thumbsdown:", true).stream().findFirst().orElse(null));
-			m.addReaction(":laughing:");*/
-			new EmoteLimiter(m)
+			m = newc.sendMessage("Fleisch / Veggie").complete();
+			x.getVotes().setEatingMsg(m);
+			//newc.pinMessageById(m.getIdLong()).complete();
+			
+			/*new EmoteLimiter(m)
 			.setAllowedEmotes(Arrays.asList("in", "50", "out"))
 			.setDisplayAllowed(true)
-			.setLimitReactions(true).start(event.getChannel());
+			.setLimitReactions(true).start(event.getChannel());*/
 			
 			x.setAnnouncementChannel(newc.getIdLong());
 			
-			//event.getGuild().getController().modifyTextChannelPositions().selectPosition(newc).moveTo(last + 1);
+			event.getGuild().getController().modifyTextChannelPositions().selectPosition(newc).moveTo(last + 1);
 			
 			JsonModel.getInstance().tournaments().add(x);
 		};

@@ -3,10 +3,11 @@ package ampullen.model;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import ampullen.jsondb.IObservable;
 import ampullen.jsondb.Observable;
 import ampullen.jsondb.Observer;
 
-public class Tournament extends Observable{
+public class Tournament extends Observable implements Observer{
 
 	int id;
 	String name;
@@ -30,7 +31,7 @@ public class Tournament extends Observable{
 	public Tournament(){}
 	
 	public Tournament(int id, String name, long date, String location, String format, String division, String teamFee,
-			String playersFee, long registrationDeadline, long paymentDeadline) {
+			String playersFee, long registrationDeadline, long paymentDeadline, TournamentVotes votes) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -43,6 +44,11 @@ public class Tournament extends Observable{
 		this.playersFee = playersFee;
 		this.registrationDeadline = registrationDeadline;
 		this.paymentDeadline = paymentDeadline;
+		this.votes = votes;
+	}
+	
+	public void initVotes() {
+		
 	}
 
 	@Override
@@ -50,8 +56,14 @@ public class Tournament extends Observable{
 		super.addObserver(o);
 		this.votes.addObserver(o);
 	}
+
+	@Override
+	public void update(IObservable observable) {
+		this.notifyObservers();
+	}
 	
 	public TournamentVotes getVotes() {
+		votes.addObserver(this);
 		return votes;
 	}
 
@@ -200,6 +212,10 @@ public class Tournament extends Observable{
 
 	public void setDivision(String division) {
 		this.division = division;
+	}
+
+	public void setVotes(TournamentVotes votes) {
+		this.votes = votes;
 	}
 
 	@Override

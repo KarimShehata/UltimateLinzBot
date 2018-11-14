@@ -2,7 +2,7 @@ package ampullen.helper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Channel;
@@ -23,6 +23,9 @@ public class EmoteLimiter extends ListenerAdapter{
 	boolean displayAllowed;
 	
 	List<Long> messages = new ArrayList<>();
+	
+	List<EmoteListener> listeners = new ArrayList<>();
+	
 
 	public EmoteLimiter(Message m) {
 		this();
@@ -33,11 +36,11 @@ public class EmoteLimiter extends ListenerAdapter{
 	}
 	
 	public void start(MessageChannel c) {
-		Stream<Message> sm = 
+		List<Message> sm = 
 			messages.stream()
-				.map(x -> c.getMessageById(x).complete());
+				.map(x -> c.getMessageById(x).complete()).collect(Collectors.toList());
 		
-		if(sm.allMatch(x -> x.getReactions().size() == 0)) {
+		if(sm.stream().allMatch(x -> x.getReactions().size() == 0)) {
 			
 			sm.forEach(x -> {
 				
@@ -111,6 +114,19 @@ public class EmoteLimiter extends ListenerAdapter{
 	public void addMessage(long l) {
 		messages.add(l);
 	}
+	
+	public boolean removeMessage(long l) {
+		return messages.remove(messages.indexOf(l)) != null;
+	}
+	
+	public void addEmoteListener(EmoteListener e) {
+		listeners.add(e);
+	}
+
+	public interface EmoteListener{
+		public void emoteAdd(MessageReactionAddEvent e);
+		public void emoteRemove(MessageReactionAddEvent e, MessageReaction r);
+	}
 
 	@Override
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
@@ -152,11 +168,14 @@ public class EmoteLimiter extends ListenerAdapter{
 							//Remove reaction
 							System.out.println("Remove2");
 							r.removeReaction(user).complete();
+							listeners.forEach(y -> y.emoteRemove(event, r));
 						}
 					});
 				}
 				
 			}
+			
+			listeners.forEach(x -> x.emoteAdd(event));
 			
 		}
 		
