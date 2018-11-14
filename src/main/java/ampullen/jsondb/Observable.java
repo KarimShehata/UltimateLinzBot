@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Observable implements IObservable{
 	
-	private transient List<Observer> observers = new ArrayList<>();
+	protected transient List<Observer> observers = new ArrayList<>();
 	
 	public void notifyObservers(){
 		observers.forEach(x -> x.update(this));

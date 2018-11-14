@@ -35,6 +35,7 @@ public class TournamentVotes extends Observable implements Observer{
 	public void addChoices(String user, Choices c) {
 		if(!attendance.containsKey(user)) {
 			attendance.put(user, c);
+			notifyObservers();
 		}else {
 			new OperationNotSupportedException("Choice already set").printStackTrace();
 		}
@@ -62,7 +63,7 @@ public class TournamentVotes extends Observable implements Observer{
 					Choices choices = attendance.get(uname);
 					if(choices.getAttendance().equals(c)) {
 						//choices.
-						//TODO Removed sinnvoll, vllt nur ändern möglioch amcehn
+						//TODO Removed sinnvoll, vllt nur ändern möglich amcehn
 					}
 				}else {
 					System.out.println("Not existent Emote removed... Was the Bot down?");

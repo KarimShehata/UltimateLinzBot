@@ -37,7 +37,7 @@ public class Main{
             if(event instanceof ReadyEvent) {
                 System.out.println("API is ready");
                 
-                initTournaments(jda);
+                initTournaments();
             }
         });
 		jda.addEventListener(new MainListener());
@@ -46,29 +46,33 @@ public class Main{
         //jda.addEventListener(new TestListener());
 	}
 	
-	private static void initTournaments(JDA jda) {
+	private static void initTournaments() {
 		
 		for(Tournament t : JsonModel.getInstance().tournaments()){
-			TextChannel announcementchannel = jda.getTextChannelById(t.getAnnouncementChannel());
-			if(announcementchannel != null) {
-				if(t.getName().contains("anta")) {
-					t.getVotes().setAttendanceMsg(announcementchannel.getMessageById(501334882945859584L).complete());
-				}
-				try {
-					t.getVotes().setAttendanceMsg(announcementchannel.getMessageById(t.getVotes().attendanceMsgId).complete());
-				}catch(Exception e) {
-					System.out.println("Attendancemessage not found");
-				}
-				try {
-					t.getVotes().setEatingMsg(announcementchannel.getMessageById(t.getVotes().eatingMsgId).complete());
-				}catch(Exception e) {
-					System.out.println("Eatingmessage not found");
-				}
-				
-			}
+			initTournament(t);
 		};
 		
-		
+	}
+	
+	
+	public static void initTournament(Tournament t) {
+		TextChannel announcementchannel = jda.getTextChannelById(t.getAnnouncementChannel());
+		if(announcementchannel != null) {
+			if(t.getName().contains("anta")) {
+				t.getVotes().setAttendanceMsg(announcementchannel.getMessageById(501334882945859584L).complete());
+			}
+			try {
+				t.getVotes().setAttendanceMsg(announcementchannel.getMessageById(t.getVotes().attendanceMsgId).complete());
+			}catch(Exception e) {
+				System.out.println("Attendancemessage not found");
+			}
+			try {
+				t.getVotes().setEatingMsg(announcementchannel.getMessageById(t.getVotes().eatingMsgId).complete());
+			}catch(Exception e) {
+				System.out.println("Eatingmessage not found");
+			}
+			
+		}
 	}
 
 	//reads the discord bot token from token.txt

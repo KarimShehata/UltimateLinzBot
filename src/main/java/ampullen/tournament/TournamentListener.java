@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import ampullen.Main;
 import ampullen.MessageTimer;
 import ampullen.Utilities;
 import ampullen.helper.Conversation;
@@ -250,9 +251,11 @@ public class TournamentListener extends ListenerAdapterCommand{
 			
 			x.setAnnouncementChannel(newc.getIdLong());
 			
-			event.getGuild().getController().modifyTextChannelPositions().selectPosition(newc).moveTo(last + 1);
+			//event.getGuild().getController().modifyTextChannelPositions().selectPosition(newc).moveTo(last + 1);
 			
 			JsonModel.getInstance().tournaments().add(x);
+			
+			Main.initTournament(x);
 		};
 		
 		new TournamentCreator(channel).create(consumer);

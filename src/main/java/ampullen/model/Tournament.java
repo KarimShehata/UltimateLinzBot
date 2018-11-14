@@ -44,13 +44,11 @@ public class Tournament extends Observable implements Observer{
 		this.playersFee = playersFee;
 		this.registrationDeadline = registrationDeadline;
 		this.paymentDeadline = paymentDeadline;
+		//this.observers.forEach(x -> votes.addObserver(x));
+		this.votes.addObserver(this);
 		this.votes = votes;
 	}
 	
-	public void initVotes() {
-		
-	}
-
 	@Override
 	public void addObserver(Observer o) {
 		super.addObserver(o);
