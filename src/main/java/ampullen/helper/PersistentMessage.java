@@ -44,7 +44,7 @@ public class PersistentMessage {
 		limiter.start(c);
 		
 		if(pinned)
-			message.pin();
+			message.pin().complete();
 	}
 	
 }

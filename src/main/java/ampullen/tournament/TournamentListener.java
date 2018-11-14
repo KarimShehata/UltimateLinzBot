@@ -238,6 +238,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 			
 			//Create Info post
 			Message m = newc.sendMessage(x.getInfoMarkup()).complete();
+			m.pin().submit();
 			x.getVotes().setAttendanceMsg(m);
 			
 			m = newc.sendMessage("Fleisch / Veggie").complete();
