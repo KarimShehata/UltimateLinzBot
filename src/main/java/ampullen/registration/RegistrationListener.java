@@ -106,7 +106,7 @@ public class RegistrationListener extends ListenerAdapter {
                 }
             case Phone:
                 try {
-                    Integer.parseInt(message);
+                    Long.parseLong(message);
                     if(message.length() > 9) {
                         ultimateLinzUser.UserData.Phone = message;
                         return true;

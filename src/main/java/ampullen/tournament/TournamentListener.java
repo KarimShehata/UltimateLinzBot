@@ -194,8 +194,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 		}else {
 			channel = event.getPrivateChannel();
 		}
-		
-		
+
 		Consumer<Tournament> consumer = x -> {
 			
 			Guild guild = event.getJDA().getGuilds().get(0);
@@ -285,7 +284,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 				.addOption("Wirklich?", x -> x.equals("Ja") ? "true" : "false")
 					.addOption("false", "Was dann?", (x, y) -> x.equals("Ja") ? "ja" : "nein")
 						.addStepLast("ja", "Wieso dann nicht wirklich?? Antworte nicht", (x, y) -> {})
-						.addStepLast("nein", "Ok." , (x, y) -> {})
+						.addStepLast("nein", "Ok." , null)
 						.done()
 					.addStepLast("true", "Consistent", (x, y) -> {})
 					.done()

@@ -25,7 +25,6 @@ public class EmoteLimiter extends ListenerAdapter{
 	List<Long> messages = new ArrayList<>();
 	
 	List<EmoteListener> listeners = new ArrayList<>();
-	
 
 	public EmoteLimiter(Message m) {
 		this();
@@ -43,7 +42,6 @@ public class EmoteLimiter extends ListenerAdapter{
 		if(sm.stream().allMatch(x -> x.getReactions().size() == 0)) {
 			
 			sm.forEach(x -> {
-				
 				allowedEmotes.stream()
 					.map(y -> getEmote(y, (Channel)c))
 					.forEach(y -> {
