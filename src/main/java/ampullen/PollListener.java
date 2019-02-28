@@ -1,6 +1,7 @@
 package ampullen;
 
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 
 public class PollListener extends ListenerAdapter {
 
-    String commandString = "/poll";
+    String commandString = Main.Prefix + "p";
     ArrayList<PollManager> pollManagers = new ArrayList<>();
 
     @Override
@@ -22,8 +23,10 @@ public class PollListener extends ListenerAdapter {
         MessageChannel messageChannel = event.getChannel();
         String messageString = event.getMessage().getContentRaw();
 
+        String command = messageString.split(" ")[0];
+
         // /poll name /T type /O optionA, optionB, optionC, .. /E emoteA, emoteB, emoteC, ..
-        if(messageString.startsWith(commandString)){
+        if(command.equals(commandString)){
 
             PollManager pollManager = PollManager.createPoll(messageString.trim());
             if(pollManager != null)
@@ -39,7 +42,11 @@ public class PollListener extends ListenerAdapter {
             {
                 sendHelpMessage(messageChannel);
             }
+
+            MessageTimer.deleteAfter(event.getMessage(), 1000);
+
         }
+
     }
 
     private Message createPollMessage(PollManager pollManager) {
@@ -68,7 +75,10 @@ public class PollListener extends ListenerAdapter {
         messageBuilder.append(info);
         //messageBuilder.appendCodeBlock(commands, "");
 
-        send(messageChannel, messageBuilder.build());
+        Message message = send(messageChannel, messageBuilder.build());
+
+        MessageTimer.deleteAfter(message, 5000);
+
     }
 
     public Message send(MessageChannel messageChannel, Message message){

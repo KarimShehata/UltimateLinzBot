@@ -33,7 +33,7 @@ class PollManager {
 
         // /poll name /T type /O optionA, optionB, optionC, .. /E emoteA, emoteB, emoteC, ..
 
-        String pollName = commandParts[0].replace("/poll ", "").trim();
+        String pollName = commandParts[0].replace(Main.Prefix + "p ", "").trim();
         String pollType = commandParts[1].replace("/T ", "").trim();
         String[] options = commandParts[2].replace("/O ", "").split(",");
         String[] emotes = commandParts[3].replace("/E ", "").split(",");

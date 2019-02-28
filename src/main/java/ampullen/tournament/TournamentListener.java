@@ -33,7 +33,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 public class TournamentListener extends ListenerAdapterCommand{
 	
 	public TournamentListener() {
-		super("/t");
+		super("t");
 	}
 	
 	public Tournament getTournamentByChannel(MessageChannel c, User author, boolean ask) {

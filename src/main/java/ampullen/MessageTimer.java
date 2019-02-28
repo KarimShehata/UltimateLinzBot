@@ -16,7 +16,7 @@ public class MessageTimer {
 			
 			System.out.println("Executing");
 			System.out.println(m.getIdLong());
-			m.delete().complete();
+			m.delete().queue();
 			
 			
 		}, millis, TimeUnit.MILLISECONDS); 

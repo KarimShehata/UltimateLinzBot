@@ -17,15 +17,18 @@ import net.dv8tion.jda.core.hooks.EventListener;
 
 public class Main{
 
-    public static JDA jda;
+	public static JDA jda;
+	public static boolean isInDeveloperMode = true;
+	public static String Prefix;
 
 	public static void main(String[] args){
 
         String token = GetToken();
+		Prefix = Main.isInDeveloperMode ? "?" : "!";
 
 		try {
 			jda = new JDABuilder(token)
-					.setGame(Game.playing("Ultimate Frisbee"))
+					.setGame(Game.playing(Prefix+"help"))
 					.build();
 		} catch (LoginException e) {
 		    e.printStackTrace();
@@ -39,7 +42,7 @@ public class Main{
                 initTournaments();
             }
         });
-		jda.addEventListener(new MainListener());
+		//jda.addEventListener(new MainListener());
 		jda.addEventListener(new TournamentListener());
 		jda.addEventListener(new RegistrationListener());
 		jda.addEventListener(new PollListener());
@@ -77,7 +80,7 @@ public class Main{
 	//reads the discord bot token from token.txt
     private static String GetToken() {
 
-        String token = "NDk4OTQ5MTg4MzQ4OTM2MTky.Dp3YEg.jjeXldfvrQncYJZDwC3Sl_o8QBE";
+        String token = "NTQ5MjIyMjAzNzc0OTkyMzg2.D1Qu0Q.jnmG2y3lN9OL8QFpdNr_8pdwEKU";
 
         File file = new File("token.txt");
 
@@ -100,6 +103,8 @@ public class Main{
             e.printStackTrace();
             System.out.println("Something went wrong. Using internal token");
         }
+
+        isInDeveloperMode = false;
 
         return token.trim();
     }
