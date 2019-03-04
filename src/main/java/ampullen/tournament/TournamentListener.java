@@ -1,12 +1,5 @@
 package ampullen.tournament;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 import ampullen.Main;
 import ampullen.MessageTimer;
 import ampullen.Utilities;
@@ -15,52 +8,45 @@ import ampullen.helper.Prompt;
 import ampullen.jsondb.JsonModel;
 import ampullen.model.Blocking;
 import ampullen.model.ListenerAdapterCommand;
+import ampullen.model.Permissioned;
 import ampullen.model.Tournament;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Category;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.PrivateChannel;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class TournamentListener extends ListenerAdapterCommand{
 	
 	public TournamentListener() {
 		super("t");
 	}
-	
-	public Tournament getTournamentByChannel(MessageChannel c, User author, boolean ask) {
-		
-		Tournament tournament = JsonModel.getInstance()
-				.tournaments().stream()
-				.filter(x -> x.getAnnouncementChannel() == c.getIdLong())
-				.findFirst().orElse(null);
-		
-		if(tournament == null && ask) {
-			
-			String tournamentname = new Prompt("Welches Turnier?", c, author).promptSync();
-			
-			tournament = JsonModel.getInstance().tournaments().stream()
-			.filter(x -> x.getName().toLowerCase().startsWith(tournamentname.toLowerCase()))
-			.findFirst().orElse(null);
-			
+
+	private Tournament getTournament(String[] args, int index, Message msg){
+
+		if(args.length > index){
+
+			String name = args[index];
+			return JsonModel.getInstance().findTouramentByName(name);
+
 		}
-		
-		return tournament;
-		
+
+		String tournamentname = new Prompt("Welches Turnier?", msg.getChannel(), msg.getAuthor()).promptSync();
+		return JsonModel.getInstance().findTouramentByName(tournamentname);
+
 	}
-	
+
+	@Permissioned({"Vorstand", "Moderator"})
 	@Blocking
 	public void editinfo(MessageReceivedEvent event, String[] msg){
 		
-		Tournament tournament = getTournamentByChannel(event.getChannel(), event.getAuthor(), true);
+		Tournament tournament = getTournament(msg, 2, event.getMessage());
 		
 		if(tournament == null) {
 			send(event.getChannel(), "Der Command kann nur vom Verwaltungschannel eines Turniers abgesetzt werden!");
@@ -77,7 +63,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 			for(String field : TournamentCreator.translations){
 				
 				String[] arr = field.split("-");
-				
+
 				prompt += String.format(" - %s: %s\n", arr[0], arr[1]);
 				
 			}
@@ -89,7 +75,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 			
 			String finalParameter = parameter;
 			
-			boolean exists = Arrays.asList(TournamentCreator.translations).stream().map(x -> x.split("-")[0]).anyMatch(x -> x.startsWith(finalParameter.toLowerCase()));
+			boolean exists = Arrays.stream(TournamentCreator.translations).map(x -> x.split("-")[0]).anyMatch(x -> x.startsWith(finalParameter.toLowerCase()));
 			
 			if(!exists) {
 				
@@ -97,7 +83,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 				
 				String finalParameter2 = parameter;
 				
-				exists = Arrays.asList(TournamentCreator.translations).stream().map(x -> x.split("-")[0]).anyMatch(x -> x.startsWith(finalParameter2.toLowerCase()));
+				exists = Arrays.stream(TournamentCreator.translations).map(x -> x.split("-")[0]).anyMatch(x -> x.startsWith(finalParameter2.toLowerCase()));
 				
 				if(!exists) {
 					Message m = event.getChannel().sendMessage("Abbruch").complete();
@@ -108,7 +94,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 			
 		}else if(msg.length > 2) {
 			
-			parameter = Arrays.asList(Arrays.copyOfRange(msg, 2, msg.length)).stream().reduce((x, y) -> x + " " + y).orElse(null);
+			parameter = Arrays.stream(Arrays.copyOfRange(msg, 2, msg.length)).reduce((x, y) -> x + " " + y).orElse(null);
 			
 		}
 		
@@ -119,11 +105,12 @@ public class TournamentListener extends ListenerAdapterCommand{
 		MessageTimer.deleteAfter(sendSync(event.getChannel(), "Feld " + parameter + " gesetzt auf " + value), 30000);
 		
 	}
-	
+
+	@Permissioned({"Vorstand", "Moderator"})
 	@Blocking
 	public void archive(MessageReceivedEvent event, String[] msg){
 		
-		Tournament tournament = getTournamentByChannel(event.getChannel(), event.getAuthor(), false);
+		Tournament tournament = getTournament(msg, 2, event.getMessage());
 		
 		new Thread(() -> {
 		
@@ -148,7 +135,12 @@ public class TournamentListener extends ListenerAdapterCommand{
 				Guild guild = event.getJDA().getGuilds().get(0);
 				
 				Category c = guild.getCategoriesByName("Archiv", true).stream().findFirst().orElse(null);
-				
+
+				if(c == null){
+					System.out.println("Category Archive is not created!!");
+					return;
+				}
+
 				List<Channel> channels = c.getChannels();
 				
 				System.out.println(channel.getPositionRaw() + "," + channel.getPosition());
@@ -179,6 +171,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 		
 	}
 
+	@Permissioned({"Vorstand", "Moderator"})
 	public void create(MessageReceivedEvent event, String[] msg){
 		
 		PrivateChannel channel;
@@ -234,7 +227,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 			if(bot != null) {
 				newc.getManager().putPermissionOverride(bot, Permission.ALL_CHANNEL_PERMISSIONS | Permission.ALL_TEXT_PERMISSIONS, 0);
 			}
-			
+
 			//Create Info post
 			Message m = newc.sendMessage(x.getInfoMarkup()).complete();
 			m.pin().submit();
@@ -302,7 +295,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 		
     	String s = "Created Tournaments: \n" + JsonModel.getInstance().tournaments().stream()
     			.sorted((x, y) -> Long.compare(x.getDate(), y.getDate()))
-    			.map(x -> x.getName())
+    			.map(Tournament::getName)
     			.reduce((x, y) -> x + "\n" + y).orElse("Keine Turniere zurzeit verfuegbar");
 		
 		Message m = sendSync(event.getChannel(), s);
@@ -312,15 +305,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 	}
 	
 	public void info(MessageReceivedEvent event, String[] msg){
-		Tournament t;
-		if(msg.length >= 3){
-			String tournament = Arrays.asList(Arrays.copyOfRange(msg, 2, msg.length)).stream().reduce("", (x, y) -> x + " " + y).trim() ;
-			t = JsonModel.getInstance().tournaments().stream().filter(x -> x.getName().toLowerCase().startsWith(tournament.toLowerCase())).findFirst().orElse(null);
-		}else {
-			t = getTournamentByChannel(event.getChannel(), event.getAuthor(), true);
-		}
-			
-		System.out.println(msg.toString());
+		Tournament t = getTournament(msg, 2, event.getMessage());
 		
 		if(t != null){
 			MessageTimer.deleteAfter(sendSync(event.getChannel(), t.getInfoMarkup()), 30000);
@@ -340,7 +325,9 @@ public class TournamentListener extends ListenerAdapterCommand{
 
 		String commands = Utilities.padRight("help", padding) + "Ruft die Hilfe auf\n"
 						+ Utilities.padRight("create", padding) + "Erstellt ein neues Turnier\n"
-						+ Utilities.padRight("info [x]", padding) + "Infos zu aktuellen Turnier [x = Turniername]";
+						+ Utilities.padRight("info [x]", padding) + "Infos zu aktuellen Turnier [x = Turniername]"
+						+ Utilities.padRight("list", padding) + "Listet alle erstellten Turniere"
+						+ Utilities.padRight("archive", padding) + "Archiviert ein Turnier";
 
 		MessageBuilder messageBuilder = new MessageBuilder();
 		messageBuilder.append(info);

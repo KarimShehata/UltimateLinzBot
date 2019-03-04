@@ -2,10 +2,14 @@ package ampullen.model;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 import ampullen.Main;
 import ampullen.MessageTimer;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -30,7 +34,7 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 		
 		if(!event.getJDA().getSelfUser().equals(event.getAuthor())){
 			if(channel.getType() == ChannelType.GROUP || channel.getType() == ChannelType.PRIVATE || channel.getType() == ChannelType.TEXT){
-				if(msg.equals(cmd)){
+				if(msg.startsWith(cmd + " ")){
 					
 					System.out.println("Message: " + event.getMessage().getContentDisplay() + " MessageId " + event.getMessageId());
 					lastMessage = event.getMessage();
@@ -59,9 +63,22 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 		for(Method m : this.getClass().getMethods()){
 			
 			if(m.getName().equalsIgnoreCase(tokens[1])){
-				
+
+				boolean hasPermission = false;
+
+				if(m.isAnnotationPresent(Permissioned.class)){
+
+					Permissioned permissioned = m.getAnnotation(Permissioned.class);
+
+					hasPermission = event.getMember().getRoles().stream()
+						.anyMatch(x ->
+								Arrays.stream(permissioned.value()).anyMatch(y -> y.equalsIgnoreCase(x.getName()))
+						);
+
+				}
+
 				try {
-					if(m.isAnnotationPresent(Blocking.class)) {
+					if(hasPermission && m.isAnnotationPresent(Blocking.class)) {
 						new Thread(() -> {
 							try {
 								m.invoke(this, event, tokens);
