@@ -10,7 +10,6 @@ import ampullen.registration.RegistrationListener;
 import ampullen.tournament.TournamentListener;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -18,15 +17,18 @@ import net.dv8tion.jda.core.hooks.EventListener;
 
 public class Main{
 
-    public static JDA jda;
+	public static JDA jda;
+	public static boolean isInDeveloperMode = true;
+	public static String Prefix;
 
 	public static void main(String[] args){
 
         String token = GetToken();
+		Prefix = Main.isInDeveloperMode ? "?" : "!";
 
 		try {
 			jda = new JDABuilder(token)
-					.setGame(Game.playing("Ultimate Frisbee"))
+					.setGame(Game.playing(Prefix+"help"))
 					.build();
 		} catch (LoginException e) {
 		    e.printStackTrace();
@@ -36,13 +38,14 @@ public class Main{
 		jda.addEventListener((EventListener) event -> {
             if(event instanceof ReadyEvent) {
                 System.out.println("API is ready");
-                
+
                 initTournaments();
             }
         });
-		jda.addEventListener(new MainListener());
+		//jda.addEventListener(new MainListener());
 		jda.addEventListener(new TournamentListener());
-        jda.addEventListener(new RegistrationListener());
+		jda.addEventListener(new RegistrationListener());
+		jda.addEventListener(new PollListener());
         //jda.addEventListener(new TestListener());
 	}
 	
@@ -50,35 +53,34 @@ public class Main{
 		
 		for(Tournament t : JsonModel.getInstance().tournaments()){
 			initTournament(t);
-		};
+		}
 		
 	}
-	
-	
-	public static void initTournament(Tournament t) {
-		TextChannel announcementchannel = jda.getTextChannelById(t.getAnnouncementChannel());
+
+	public static void initTournament(Tournament tournament) {
+		TextChannel announcementchannel = jda.getTextChannelById(tournament.getAnnouncementChannel());
 		if(announcementchannel != null) {
-			if(t.getName().contains("anta")) {
-				t.getVotes().setAttendanceMsg(announcementchannel.getMessageById(501334882945859584L).complete());
+			//todo wtf? @raphael?
+			if(tournament.getName().contains("anta")) {
+				tournament.getVotes().setAttendanceMsg(announcementchannel.getMessageById(501334882945859584L).complete());
 			}
 			try {
-				t.getVotes().setAttendanceMsg(announcementchannel.getMessageById(t.getVotes().attendanceMsgId).complete());
+				tournament.getVotes().setAttendanceMsg(announcementchannel.getMessageById(tournament.getVotes().attendanceMsgId).complete());
 			}catch(Exception e) {
 				System.out.println("Attendancemessage not found");
 			}
 			try {
-				t.getVotes().setEatingMsg(announcementchannel.getMessageById(t.getVotes().eatingMsgId).complete());
+				tournament.getVotes().setEatingMsg(announcementchannel.getMessageById(tournament.getVotes().eatingMsgId).complete());
 			}catch(Exception e) {
 				System.out.println("Eatingmessage not found");
 			}
-			
 		}
 	}
 
 	//reads the discord bot token from token.txt
     private static String GetToken() {
 
-        String token = "NDk4OTQ5MTg4MzQ4OTM2MTky.Dp3YEg.jjeXldfvrQncYJZDwC3Sl_o8QBE";
+        String token = "NTQ5MjIyMjAzNzc0OTkyMzg2.D1Qu0Q.jnmG2y3lN9OL8QFpdNr_8pdwEKU";
 
         File file = new File("token.txt");
 
@@ -101,6 +103,8 @@ public class Main{
             e.printStackTrace();
             System.out.println("Something went wrong. Using internal token");
         }
+
+        isInDeveloperMode = false;
 
         return token.trim();
     }

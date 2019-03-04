@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Class-Path: annotations-16.0.1.jar jna-4.4.0.jar nv-websocket-client-2
+ .5.jar okhttp-3.11.0.jar opus-java-natives-1.0.4.jar jda-utilities-do
+ c-2.1.4.jar commons-collections4-4.1.jar jda-utilities-commons-2.1.4.
+ jar jsr305-3.0.2.jar kotlin-stdlib-jdk8-1.2.71.jar opus-java-api-1.0.
+ 4.jar kotlin-stdlib-common-1.2.71.jar kotlin-stdlib-jdk7-1.2.71.jar j
+ da-utilities-examples-2.1.4.jar slf4j-api-1.7.25.jar jda-utilities-me
+ nu-2.1.4.jar moshi-1.7.0.jar JDA-3.8.0_436.jar json-20160810.jar jda-
+ utilities-command-2.1.4.jar okio-1.15.0.jar trove4j-3.0.3.jar kotlin-
+ stdlib-1.2.71.jar
+Main-Class: ampullen.Main
+

@@ -3,6 +3,7 @@ package ampullen.model;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import ampullen.Main;
 import ampullen.MessageTimer;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
@@ -16,7 +17,7 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 	Message lastMessage;
 	
 	public ListenerAdapterCommand(String cmd) {
-		this.cmd = cmd;
+		this.cmd = Main.Prefix + cmd;
 		this.lastMessage = null;
 	}
 	
@@ -29,7 +30,7 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 		
 		if(!event.getJDA().getSelfUser().equals(event.getAuthor())){
 			if(channel.getType() == ChannelType.GROUP || channel.getType() == ChannelType.PRIVATE || channel.getType() == ChannelType.TEXT){
-				if(msg.startsWith(cmd)){
+				if(msg.equals(cmd)){
 					
 					System.out.println("Message: " + event.getMessage().getContentDisplay() + " MessageId " + event.getMessageId());
 					lastMessage = event.getMessage();
