@@ -1,5 +1,6 @@
 package ampullen.helper;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,6 +36,19 @@ public class Conversation implements Cloneable{
 	public Object get(String s){
 		return store.get(s);
 	}
+	
+	public <T> T get(String s, Class<T> c) {
+		Object o = get(s);
+		if(c.isInstance(o)) {
+			return c.cast(o);
+		}
+		return null;
+	}
+	
+	public boolean contains(String key) {
+		return store.containsKey(key);
+	}
+	
 	List<Consumer<Conversation>> finished = new ArrayList<>();
 	
 	public Conversation finished(Consumer<Conversation> consumer){
