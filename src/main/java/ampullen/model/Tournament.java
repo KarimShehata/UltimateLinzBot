@@ -6,6 +6,7 @@ import java.util.Calendar;
 import ampullen.jsondb.IObservable;
 import ampullen.jsondb.Observable;
 import ampullen.jsondb.Observer;
+import ampullen.tournament.TournamentChangeListener;
 
 public class Tournament extends Observable implements Observer{
 
@@ -21,6 +22,7 @@ public class Tournament extends Observable implements Observer{
 	long registrationDeadline;
 	long paymentDeadline;
 	String schedule;
+	String playersinfo;
 	String ucLink;
 	String comment;
 	TournamentVotes votes = new TournamentVotes();
@@ -38,7 +40,6 @@ public class Tournament extends Observable implements Observer{
 		this.date = date;
 		this.location = location;
 		this.format = format;
-		//this.venue = venue;
 		this.teamFee = teamFee;
 		this.division = division;
 		this.playersFee = playersFee;
@@ -48,7 +49,7 @@ public class Tournament extends Observable implements Observer{
 		this.votes.addObserver(this);
 		this.votes = votes;
 	}
-	
+
 	@Override
 	public void addObserver(Observer o) {
 		super.addObserver(o);
@@ -132,15 +133,6 @@ public class Tournament extends Observable implements Observer{
 		notifyObservers();
 	}
 
-	/*public String getVenue() {
-		return venue;
-	}
-
-	public void setVenue(String venue) {
-		this.venue = venue;
-		notifyObservers();
-	}*/
-
 	public String getTeamFee() {
 		return teamFee;
 	}
@@ -186,6 +178,14 @@ public class Tournament extends Observable implements Observer{
 		notifyObservers();
 	}
 
+	public String getPlayersinfo() {
+		return playersinfo;
+	}
+
+	public void setPlayersinfo(String playersinfo) {
+		this.playersinfo = playersinfo;
+	}
+
 	public String getUcLink() {
 		return ucLink;
 	}
@@ -221,7 +221,7 @@ public class Tournament extends Observable implements Observer{
 		return "Tournament [name=" + name + ", date=" + date + ", location=" + location + ", format=" + format
 				+ ", division=" + division + ", teamFee=" + teamFee + ", playersFee=" + playersFee
 				+ ", registrationDeadline=" + registrationDeadline + ", paymentDeadline=" + paymentDeadline
-				+ ", schedule=" + schedule + ", ucLink=" + ucLink + ", comment=" + comment + "]";
+				+ ", schedule=" + schedule + ", playersinfo=" + playersinfo + ", ucLink=" + ucLink + ", comment=" + comment + "]";
 	}
 	
 	public String getInfoMarkup(){
@@ -239,9 +239,10 @@ public class Tournament extends Observable implements Observer{
 				+ "**Deadline Zahlung**: " + dateformat.format(paymentDeadline) + "\n\n"
 				, name, location, format, division, teamFee, playersFee);
 		
-		s += (schedule != null ? String.format("**Schedule:** %s\n\n", schedule) : "");
-		s += (ucLink != null ? String.format("**Ultimate Central:** %s\n\n", ucLink) : "");
-		s += (comment != null ? String.format("**Kommentar:** %s", comment) : "");
+		s += schedule != null ? String.format("**Schedule:** %s\n\n", schedule) : "";
+		s += playersinfo != null ? String.format("**Playersinfo** %s\n\n", playersinfo) : "";
+		s += ucLink != null ? String.format("**Ultimate Central:** %s\n\n", ucLink) : "";
+		s += comment != null ? String.format("**Kommentar:** %s", comment) : "";
 		
 		return s;
 		

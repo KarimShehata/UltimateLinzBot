@@ -8,10 +8,7 @@ import java.util.List;
 import ampullen.Main;
 import ampullen.MessageTimer;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
@@ -70,29 +67,33 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 
 					Permissioned permissioned = m.getAnnotation(Permissioned.class);
 
-					hasPermission = event.getMember().getRoles().stream()
+					List<Role> roles = event.getJDA().getGuilds().get(0).getMember(event.getAuthor()).getRoles();
+					hasPermission = roles.stream()  //Guilds noch ordentlich machen...
 						.anyMatch(x ->
 								Arrays.stream(permissioned.value()).anyMatch(y -> y.equalsIgnoreCase(x.getName()))
 						);
-
 				}
 
-				try {
-					if(hasPermission && m.isAnnotationPresent(Blocking.class)) {
-						new Thread(() -> {
-							try {
-								m.invoke(this, event, tokens);
-							} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-								e.printStackTrace();
-							}
-						}).start();
-					}else {
-						m.invoke(this, event, tokens);
+				if(hasPermission) {
+					try {
+						if (m.isAnnotationPresent(Blocking.class)) {
+							new Thread(() -> {
+								try {
+									m.invoke(this, event, tokens);
+								} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+									e.printStackTrace();
+								}
+							}).start();
+						} else {
+							m.invoke(this, event, tokens);
+						}
+						return true;
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						//TODO, Command not found, help()
+						e.printStackTrace();
 					}
-					return true;
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-					//TODO, Command not found, help()
-					e.printStackTrace();
+				}else{
+					send(event.getChannel(), "Für diesen Befehl hast du nicht die nötigen Berechtigungen");
 				}
 			}
 		}

@@ -60,20 +60,19 @@ public class Main{
 	public static void initTournament(Tournament tournament) {
 		TextChannel announcementchannel = jda.getTextChannelById(tournament.getAnnouncementChannel());
 		if(announcementchannel != null) {
-			//todo wtf? @raphael?
-			if(tournament.getName().contains("anta")) {
-				tournament.getVotes().setAttendanceMsg(announcementchannel.getMessageById(501334882945859584L).complete());
-			}
+
 			try {
 				tournament.getVotes().setAttendanceMsg(announcementchannel.getMessageById(tournament.getVotes().attendanceMsgId).complete());
 			}catch(Exception e) {
 				System.out.println("Attendancemessage not found");
 			}
+
 			try {
 				tournament.getVotes().setEatingMsg(announcementchannel.getMessageById(tournament.getVotes().eatingMsgId).complete());
 			}catch(Exception e) {
 				System.out.println("Eatingmessage not found");
 			}
+
 		}
 	}
 

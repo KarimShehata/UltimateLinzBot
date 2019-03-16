@@ -29,17 +29,13 @@ public class JsonModel implements Observer{
 	public List<Tournament> tournaments() {
 		return tournaments;
 	}
-	
-	/*public void addTournament(Tournament t){
-		t.addObserver(this);
-		tournaments.add(t);
-		save(tournaments);
-	}*/
 
-	/*public void setTournaments(List<Tournament> tournaments) {
-		subscribe(tournaments);
-		this.tournaments = tournaments;
-	}*/
+	public Tournament findTouramentByName(String name){
+
+		return this.tournaments().stream()
+				.filter(x -> x.getName().toLowerCase().startsWith(name.toLowerCase()))
+				.findFirst().orElse(null);
+	}
 	
 	private JsonModel() {
 		
@@ -53,13 +49,6 @@ public class JsonModel implements Observer{
 		if(!BASE_DIRECTORY.exists()){
 			BASE_DIRECTORY.mkdirs();
 		}
-		
-		/*boolean empty = false;
-		if(list.size() == 0) {
-			list.add((T)new Object());
-			empty = true;
-			Your mom gay
-		}*/
 		
 		String name = "";
 		Type type = null;
@@ -78,7 +67,7 @@ public class JsonModel implements Observer{
 		
 		JsonAdapter<List<T>> adapter = moshi.adapter(type);
 		String s = adapter.toJson(list);
-		s.replaceAll("[Ä$‰ˆ¸ƒ÷‹]", "");
+		s = s.replaceAll("[Ä$‰ˆ¸ƒ÷‹]", "");
 		
 		try (FileWriter fw = new FileWriter(f)){
 			fw.write(s);

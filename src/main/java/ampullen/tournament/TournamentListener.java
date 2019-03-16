@@ -42,14 +42,14 @@ public class TournamentListener extends ListenerAdapterCommand{
 
 	}
 
-	@Permissioned({"Vorstand", "Moderator"})
+	@Permissioned({"Vorstand"})
 	@Blocking
 	public void editinfo(MessageReceivedEvent event, String[] msg){
 		
 		Tournament tournament = getTournament(msg, 2, event.getMessage());
 		
 		if(tournament == null) {
-			send(event.getChannel(), "Der Command kann nur vom Verwaltungschannel eines Turniers abgesetzt werden!");
+			send(event.getChannel(), "Turnier nicht gefunden!");
 			return;
 		}
 		
@@ -67,7 +67,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 				prompt += String.format(" - %s: %s\n", arr[0], arr[1]);
 				
 			}
-			prompt += "Welches Infofeld willst du �ndern?";
+			prompt += "Welches Infofeld willst du ändern?";
 			
 			parameter = new Prompt(prompt, event.getChannel(), event.getAuthor()).setDelete(30000).promptSync();
 			
@@ -232,6 +232,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 			Message m = newc.sendMessage(x.getInfoMarkup()).complete();
 			m.pin().submit();
 			x.getVotes().setAttendanceMsg(m);
+			x.addObserver(new TournamentChangeListener(event.getJDA()));
 			
 			m = newc.sendMessage("Fleisch / Veggie").complete();
 			x.getVotes().setEatingMsg(m);
