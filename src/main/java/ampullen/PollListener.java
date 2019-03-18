@@ -1,15 +1,18 @@
 package ampullen;
 
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 public class PollListener extends ListenerAdapter {
 
@@ -25,27 +28,26 @@ public class PollListener extends ListenerAdapter {
 
         String command = messageString.split(" ")[0];
 
-        // /poll name /T type /O optionA, optionB, optionC, .. /E emoteA, emoteB, emoteC, ..
-        if(command.equals(commandString)){
+        if(!Utilities.HasMemberRole(event.getMember(), "Vereinsmitglied")) return;
 
-            PollManager pollManager = PollManager.createPoll(messageString.trim());
-            if(pollManager != null)
-            {
-                Message message = createPollMessage(pollManager);
+        if (!command.equals(commandString)) return;
 
-                pollManager.PollMessage = send(messageChannel, message);
-                pollManager.addReactionsToMessage();
+        PollManager pollManager = PollManager.createPoll(messageString.trim());
+        if(pollManager != null)
+        {
+            Message message = createPollMessage(pollManager);
 
-                pollManagers.add(pollManager);
-            }
-            else
-            {
-                sendHelpMessage(messageChannel);
-            }
+            pollManager.PollMessage = send(messageChannel, message);
+            pollManager.addReactionsToMessage();
 
-            MessageTimer.deleteAfter(event.getMessage(), 1000);
-
+            pollManagers.add(pollManager);
         }
+        else
+        {
+            sendHelpMessage(messageChannel);
+        }
+
+        MessageTimer.deleteAfter(event.getMessage(), 1000);
 
     }
 
@@ -65,7 +67,9 @@ public class PollListener extends ListenerAdapter {
     private void sendHelpMessage(MessageChannel messageChannel) {
         int padding = 12;
 
-        String info = "Verwendung: /poll \"name\" /T type /O optionA, optionB, optionC, .. /E emoteA, emoteB, emoteC, ..\n";
+        String info = "Verwendung: \n" +
+                commandString + " name /t type [S/M] /o optionA, optionB, optionC, .. /e emoteA, emoteB, emoteC, ..\n" +
+                "(Sollte ein Wert Leerzeichen enthalten bitte in \"\" stellen.)";
 
         String commands = Utilities.padRight("help", padding) + "Ruft die Hilfe auf\n"
                         + Utilities.padRight("create", padding) + "Erstellt ein neues Turnier\n"
@@ -78,7 +82,6 @@ public class PollListener extends ListenerAdapter {
         Message message = send(messageChannel, messageBuilder.build());
 
         MessageTimer.deleteAfter(message, 5000);
-
     }
 
     public Message send(MessageChannel messageChannel, Message message){
