@@ -4,9 +4,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import ampullen.jsondb.IObservable;
+import ampullen.jsondb.Initializeable;
 import ampullen.jsondb.Observable;
 import ampullen.jsondb.Observer;
 import ampullen.tournament.TournamentChangeListener;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 public class Tournament extends Observable implements Observer, Initializeable {
 
@@ -70,6 +73,23 @@ public class Tournament extends Observable implements Observer, Initializeable {
 	public void init(JDA jda) {
 
 		this.addObserver(new TournamentChangeListener(jda));
+
+		TextChannel announcementchannel = jda.getTextChannelById(this.getAnnouncementChannel());
+		if(announcementchannel != null) {
+
+			try {
+				this.getVotes().setAttendanceMsg(announcementchannel.getMessageById(this.getVotes().attendanceMsgId).complete());
+			}catch(Exception e) {
+				System.out.println("Attendancemessage not found");
+			}
+
+			try {
+				this.getVotes().setEatingMsg(announcementchannel.getMessageById(this.getVotes().eatingMsgId).complete());
+			}catch(Exception e) {
+				System.out.println("Eatingmessage not found");
+			}
+
+		}
 
 	}
 

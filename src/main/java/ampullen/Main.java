@@ -58,22 +58,22 @@ public class Main{
 	}
 
 	public static void initTournament(Tournament tournament) {
-		TextChannel announcementchannel = jda.getTextChannelById(tournament.getAnnouncementChannel());
-		if(announcementchannel != null) {
-
-			try {
-				tournament.getVotes().setAttendanceMsg(announcementchannel.getMessageById(tournament.getVotes().attendanceMsgId).complete());
-			}catch(Exception e) {
-				System.out.println("Attendancemessage not found");
-			}
-
-			try {
-				tournament.getVotes().setEatingMsg(announcementchannel.getMessageById(tournament.getVotes().eatingMsgId).complete());
-			}catch(Exception e) {
-				System.out.println("Eatingmessage not found");
-			}
-
-		}
+//		TextChannel announcementchannel = jda.getTextChannelById(tournament.getAnnouncementChannel());
+//		if(announcementchannel != null) {
+//
+//			try {
+//				tournament.getVotes().setAttendanceMsg(announcementchannel.getMessageById(tournament.getVotes().attendanceMsgId).complete());
+//			}catch(Exception e) {
+//				System.out.println("Attendancemessage not found");
+//			}
+//
+//			try {
+//				tournament.getVotes().setEatingMsg(announcementchannel.getMessageById(tournament.getVotes().eatingMsgId).complete());
+//			}catch(Exception e) {
+//				System.out.println("Eatingmessage not found");
+//			}
+//
+//		}
 	}
 
 	//reads the discord bot token from token.txt
