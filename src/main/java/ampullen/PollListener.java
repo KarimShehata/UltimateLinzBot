@@ -1,18 +1,14 @@
 package ampullen;
 
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 
 public class PollListener extends ListenerAdapter {
 
@@ -28,7 +24,7 @@ public class PollListener extends ListenerAdapter {
 
         String command = messageString.split(" ")[0];
 
-        if(!Utilities.HasMemberRole(event.getMember(), "Vereinsmitglied")) return;
+        //if(!Utilities.HasMemberRole(event.getMember(), "Vereinsmitglied")) return;
 
         if (!command.equals(commandString)) return;
 
@@ -38,7 +34,7 @@ public class PollListener extends ListenerAdapter {
             Message message = createPollMessage(pollManager);
 
             pollManager.PollMessage = send(messageChannel, message);
-            pollManager.addReactionsToMessage();
+            pollManager.addInitialReactions();
 
             pollManagers.add(pollManager);
         }
@@ -81,7 +77,7 @@ public class PollListener extends ListenerAdapter {
 
         Message message = send(messageChannel, messageBuilder.build());
 
-        MessageTimer.deleteAfter(message, 5000);
+        MessageTimer.deleteAfter(message, 10000);
     }
 
     public Message send(MessageChannel messageChannel, Message message){
@@ -98,17 +94,14 @@ public class PollListener extends ListenerAdapter {
 
         PollManager selectedPollManager = getPollManagerByMessageId(messageId);
 
-        if(selectedPollManager == null) {
-            System.out.println("Not a Poll!");
-            return;
-        }
+        if(selectedPollManager == null) return; //not a poll or poll not found
 
         if (!selectedPollManager.verifyReaction(event.getReaction())) {
             event.getReaction().removeReaction(event.getUser()).complete();
             return;
         }
 
-        selectedPollManager.addUserVote(event.getMember(), event.getReaction());
+        selectedPollManager.addUserVote(event);
 
         Message message = event.getChannel().getMessageById(messageId).complete();
         message.editMessage(createPollMessage(selectedPollManager)).queue();

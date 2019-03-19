@@ -4,17 +4,19 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class PollManager {
 
-    private ArrayList<String> Users;
     Message PollMessage;
-    private PollType PollType;
     String PollName;
+    private ArrayList<String> Users;
+    private PollType PollType;
     private ArrayList<VoteOption> VoteOptions;
     private HashMap<Member, ArrayList<MessageReaction>> UserVotes;
 
@@ -29,7 +31,7 @@ class PollManager {
         // split by commands
         String[] commandParts = commandString.split("(?=/)");
 
-        if(commandParts.length != 4)
+        if (commandParts.length != 4)
             return null;
 
         // /poll name /T type /O optionA, optionB, optionC, .. /E emoteA, emoteB, emoteC, ..
@@ -44,10 +46,10 @@ class PollManager {
         pollManager.PollName = pollName;
 
         switch (pollType) {
-            case "Single":
+            case "S":
                 pollManager.PollType = ampullen.PollType.SingleChoice;
                 break;
-            case "Multiple":
+            case "M":
                 pollManager.PollType = ampullen.PollType.MultipleChoice;
                 break;
             default:
@@ -56,7 +58,7 @@ class PollManager {
 
         boolean areOptionsValid = pollManager.createOptions(options, emotes);
 
-        if(!areOptionsValid)
+        if (!areOptionsValid)
             return null;
 
         return pollManager;
@@ -64,12 +66,11 @@ class PollManager {
 
     private boolean createOptions(String[] options, String[] emotes) {
 
-        if(options.length != emotes.length)
+        if (options.length != emotes.length)
             return false;
 
-        for (int i=0; i<options.length; i++)
-        {
-            VoteOptions.add( new VoteOption(options[i].trim(), emotes[i].trim()));
+        for (int i = 0; i < options.length; i++) {
+            VoteOptions.add(new VoteOption(options[i].trim(), emotes[i].trim()));
         }
 
         return true;
@@ -82,7 +83,7 @@ class PollManager {
         // create table header
         StringBuilder header = new StringBuilder(" " + Utilities.padRight("Name", nameColumnPadding) + " |");
 
-        for (VoteOption voteOption : VoteOptions){
+        for (VoteOption voteOption : VoteOptions) {
             header.append(" ").append(voteOption.Name).append(" |");
         }
 
@@ -110,7 +111,7 @@ class PollManager {
 
                 boolean found = false;
                 for (MessageReaction messageReaction : userVote.getValue()) {
-                    if(voteOption.Emote.equals(messageReaction.getReactionEmote().getName())){
+                    if (voteOption.Emote.equals(messageReaction.getReactionEmote().getName())) {
                         found = true;
                         voteOption.Count++;
                         entries.append(" ").append(Utilities.padRight("X", voteOption.Name.length())).append(" |");
@@ -118,7 +119,7 @@ class PollManager {
                     }
                 }
 
-                if(!found)
+                if (!found)
                     entries.append(" ").append(Utilities.padRight("", voteOption.Name.length())).append(" |");
             }
 
@@ -135,7 +136,7 @@ class PollManager {
 
         summary = new StringBuilder(summary.substring(0, summary.length() - 1));
 
-        return  header +
+        return header +
                 separator.toString() +
                 entries +
                 separator +
@@ -146,35 +147,41 @@ class PollManager {
 
         int maxLength = "Name".length();
 
-        for (Map.Entry<Member, ArrayList<MessageReaction>> userVote : UserVotes.entrySet()){
+        for (Map.Entry<Member, ArrayList<MessageReaction>> userVote : UserVotes.entrySet()) {
             int userNameLength = userVote.getKey().getNickname().length();
-            if(userNameLength > maxLength)
-                maxLength =  userNameLength;
+            if (userNameLength > maxLength)
+                maxLength = userNameLength;
         }
 
         return maxLength;
     }
 
-    void addReactionsToMessage() {
-        for (VoteOption voteOption : VoteOptions){
+    void addInitialReactions() {
+        for (VoteOption voteOption : VoteOptions) {
             PollMessage.addReaction(voteOption.Emote).queue();
         }
     }
 
-    void addUserVote(Member member, MessageReaction messageReaction) {
+    void addUserVote(MessageReactionAddEvent event) {
+
+        Member member = event.getMember();
+        MessageReaction messageReaction = event.getReaction();
 
         ArrayList<MessageReaction> messageReactions = UserVotes.get(member);
 
-        if (messageReactions != null)  //not voted yet
-        {
-            if(!messageReactions.contains(messageReaction)) //if not already voted
-                messageReactions.add(messageReaction);
-        }
-        //add vote to other votes
-        else {
+        if (messageReactions == null) {
             messageReactions = new ArrayList<>();
             messageReactions.add(messageReaction);
         }
+        else {
+            if (PollType == PollType.SingleChoice){
+                //event.getChannel().getMessageById(event.getMessageId()).complete().
+            }
+
+            if (!messageReactions.contains(messageReaction)) //if not already voted
+                messageReactions.add(messageReaction);
+        }
+
 
         UserVotes.put(member, messageReactions);
     }
@@ -188,14 +195,14 @@ class PollManager {
 
         messageReactions.remove(messageReaction);
 
-        if(messageReactions.size() <= 0)
+        if (messageReactions.size() <= 0)
             UserVotes.remove(member, messageReactions);
     }
 
     boolean verifyReaction(MessageReaction messageReaction) {
 
         for (VoteOption voteOption : VoteOptions) {
-            if(voteOption.Emote.equals(messageReaction.getReactionEmote().getName())) {
+            if (voteOption.Emote.equals(messageReaction.getReactionEmote().getName())) {
                 return true;
             }
         }

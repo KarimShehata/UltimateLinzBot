@@ -148,9 +148,7 @@ public class JsonModel implements Observer{
 	public List<Field> getFields(){
 		List<Field> list = new ArrayList<>();
 		for(Field f : this.getClass().getDeclaredFields()){
-			
-			System.out.println(f.getName());
-			
+
 			if(f.getType().getName().equals(ObservableList.class.getName())){
 				list.add(f);
 			}

@@ -38,15 +38,13 @@ public class Main{
 		jda.addEventListener((EventListener) event -> {
             if(event instanceof ReadyEvent) {
                 System.out.println("API is ready");
-
                 initTournaments();
             }
         });
 		//jda.addEventListener(new MainListener());
 		jda.addEventListener(new TournamentListener());
-		jda.addEventListener(new RegistrationListener());
+		//jda.addEventListener(new RegistrationListener());
 		jda.addEventListener(new PollListener());
-        //jda.addEventListener(new TestListener());
 	}
 	
 	private static void initTournaments() {
