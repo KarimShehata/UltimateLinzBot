@@ -5,10 +5,12 @@ import java.util.List;
 
 public class Observable implements IObservable{
 	
-	protected transient List<Observer> observers = new ArrayList<>();
+	private final transient List<Observer> observers = new ArrayList<>();
 	
 	public void notifyObservers(){
-		observers.forEach(x -> x.update(this));
+		synchronized (observers){
+			observers.forEach(x -> x.update(this));
+		}
 	}
 	
 	public void addObserver(Observer o){

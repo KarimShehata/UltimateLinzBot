@@ -8,7 +8,7 @@ import ampullen.jsondb.Observable;
 import ampullen.jsondb.Observer;
 import ampullen.tournament.TournamentChangeListener;
 
-public class Tournament extends Observable implements Observer{
+public class Tournament extends Observable implements Observer, Initializeable {
 
 	int id;
 	String name;
@@ -64,6 +64,13 @@ public class Tournament extends Observable implements Observer{
 	public TournamentVotes getVotes() {
 		votes.addObserver(this);
 		return votes;
+	}
+
+	@Override
+	public void init(JDA jda) {
+
+		this.addObserver(new TournamentChangeListener(jda));
+
 	}
 
 	/*public void setVotes(TournamentVotes votes) {
@@ -184,6 +191,7 @@ public class Tournament extends Observable implements Observer{
 
 	public void setPlayersinfo(String playersinfo) {
 		this.playersinfo = playersinfo;
+		notifyObservers();
 	}
 
 	public String getUcLink() {
@@ -247,5 +255,4 @@ public class Tournament extends Observable implements Observer{
 		return s;
 		
 	}
-	
 }

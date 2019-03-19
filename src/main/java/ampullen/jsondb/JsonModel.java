@@ -17,6 +17,8 @@ import com.squareup.moshi.Types;
 import ampullen.model.Tournament;
 import ampullen.model.TournamentVotes;
 
+import static ampullen.Main.jda;
+
 public class JsonModel implements Observer{
 
 	private static final File BASE_DIRECTORY = new File(System.getProperty("user.dir") + "/db");
@@ -120,6 +122,12 @@ public class JsonModel implements Observer{
 							//TODO Other Classes
 						}else{
 							System.out.println("Error 1");
+						}
+
+						if(element instanceof Initializeable){
+
+							observablelist.forEach(x -> ((Initializeable) x).init(jda));
+
 						}
 					
 					}
