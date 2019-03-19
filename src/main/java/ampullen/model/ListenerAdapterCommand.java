@@ -72,6 +72,8 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 						.anyMatch(x ->
 								Arrays.stream(permissioned.value()).anyMatch(y -> y.equalsIgnoreCase(x.getName()))
 						);
+				}else{
+					hasPermission = true;
 				}
 
 				if(hasPermission) {

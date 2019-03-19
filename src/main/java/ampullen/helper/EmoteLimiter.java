@@ -149,8 +149,8 @@ public class EmoteLimiter extends ListenerAdapter{
 			
 			if(limitReactions) {
 				
-				//Except Poll bot
-				if(m.getAuthor().getName().toLowerCase().contains("poll") || event.getUser().getName().toLowerCase().contains("ampullen")) {
+				//Except Bots
+				if(event.getUser().isBot()){
 					System.out.println("Bot return");
 					return;
 				}

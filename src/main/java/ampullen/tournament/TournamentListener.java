@@ -45,8 +45,10 @@ public class TournamentListener extends ListenerAdapterCommand{
 	@Permissioned({"Vorstand"})
 	@Blocking
 	public void editinfo(MessageReceivedEvent event, String[] msg){
-		
-		Tournament tournament = getTournament(msg, 2, event.getMessage());
+
+		//TODO Argument 2 und 3 funktionieren nicht richtig
+
+		Tournament tournament = getTournament(msg, 3, event.getMessage());
 		
 		if(tournament == null) {
 			send(event.getChannel(), "Turnier nicht gefunden!");
@@ -88,6 +90,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 				if(!exists) {
 					Message m = event.getChannel().sendMessage("Abbruch").complete();
 					MessageTimer.deleteAfter(m, 20000);
+					return;
 				}
 				
 			}
@@ -102,7 +105,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 		
 		TournamentCreator.parseFieldInto(tournament, value, TournamentCreator.getFieldFromLabel(parameter));
 		
-		MessageTimer.deleteAfter(sendSync(event.getChannel(), "Feld " + parameter + " gesetzt auf " + value), 30000);
+		/*MessageTimer.deleteAfter(*/sendSync(event.getChannel(), "Feld " + parameter + " gesetzt auf " + value);//, 30000);
 		
 	}
 
@@ -232,7 +235,6 @@ public class TournamentListener extends ListenerAdapterCommand{
 			Message m = newc.sendMessage(x.getInfoMarkup()).complete();
 			m.pin().submit();
 			x.getVotes().setAttendanceMsg(m);
-			x.addObserver(new TournamentChangeListener(event.getJDA()));
 			
 			m = newc.sendMessage("Fleisch / Veggie").complete();
 			x.getVotes().setEatingMsg(m);
@@ -246,7 +248,8 @@ public class TournamentListener extends ListenerAdapterCommand{
 			x.setAnnouncementChannel(newc.getIdLong());
 			
 			//event.getGuild().getController().modifyTextChannelPositions().selectPosition(newc).moveTo(last + 1);
-			
+
+			x.init(event.getJDA());
 			JsonModel.getInstance().tournaments().add(x);
 			
 			Main.initTournament(x);

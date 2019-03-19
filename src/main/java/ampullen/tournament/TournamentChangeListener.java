@@ -4,12 +4,14 @@ import ampullen.jsondb.IObservable;
 import ampullen.jsondb.Observer;
 import ampullen.model.Tournament;
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 public class TournamentChangeListener implements Observer {
 
     JDA jda;
 
-    TournamentChangeListener(JDA jda){
+    public TournamentChangeListener(JDA jda){
         this.jda = jda;
     }
 
@@ -18,8 +20,23 @@ public class TournamentChangeListener implements Observer {
         if(observable instanceof Tournament){
 
             Tournament tournament = (Tournament) observable;
-            jda.getTextChannelById(tournament.getAnnouncementChannel()).getMessageById(tournament.getVotes().attendanceMsgId).complete()
-                    .editMessage(tournament.getInfoMarkup()).complete();
+            TextChannel channel = jda.getTextChannelById(tournament.getAnnouncementChannel());
+
+            if(channel != null){
+                Message message = channel.getMessageById(tournament.getVotes().attendanceMsgId).complete();
+
+                if(message != null){
+
+                    message.editMessage(tournament.getInfoMarkup()).complete();
+
+                }else{
+                    System.err.println("TournamentChangeListenere - Message not found");
+                    Thread.dumpStack();
+                }
+
+            }else{
+                System.err.println("TournamentChangeListenere - Channel not found");
+            }
 
         }
     }
