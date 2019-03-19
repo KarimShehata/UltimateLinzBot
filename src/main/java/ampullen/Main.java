@@ -38,8 +38,6 @@ public class Main{
 		jda.addEventListener((EventListener) event -> {
             if(event instanceof ReadyEvent) {
                 System.out.println("API is ready");
-
-                initTournaments();
             }
         });
 		//jda.addEventListener(new MainListener());
@@ -47,33 +45,6 @@ public class Main{
 		jda.addEventListener(new RegistrationListener());
 		jda.addEventListener(new PollListener());
         //jda.addEventListener(new TestListener());
-	}
-	
-	private static void initTournaments() {
-		
-		for(Tournament t : JsonModel.getInstance().tournaments()){
-			initTournament(t);
-		}
-		
-	}
-
-	public static void initTournament(Tournament tournament) {
-//		TextChannel announcementchannel = jda.getTextChannelById(tournament.getAnnouncementChannel());
-//		if(announcementchannel != null) {
-//
-//			try {
-//				tournament.getVotes().setAttendanceMsg(announcementchannel.getMessageById(tournament.getVotes().attendanceMsgId).complete());
-//			}catch(Exception e) {
-//				System.out.println("Attendancemessage not found");
-//			}
-//
-//			try {
-//				tournament.getVotes().setEatingMsg(announcementchannel.getMessageById(tournament.getVotes().eatingMsgId).complete());
-//			}catch(Exception e) {
-//				System.out.println("Eatingmessage not found");
-//			}
-//
-//		}
 	}
 
 	//reads the discord bot token from token.txt
