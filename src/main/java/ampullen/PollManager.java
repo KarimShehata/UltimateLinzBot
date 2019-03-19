@@ -1,5 +1,6 @@
 package ampullen;
 
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
@@ -15,7 +16,7 @@ class PollManager {
     private PollType PollType;
     String PollName;
     private ArrayList<VoteOption> VoteOptions;
-    private HashMap<User, ArrayList<MessageReaction>> UserVotes;
+    private HashMap<Member, ArrayList<MessageReaction>> UserVotes;
 
     private PollManager() {
         Users = new ArrayList<>();
@@ -101,9 +102,9 @@ class PollManager {
 
         VoteOptions.forEach(voteOption -> voteOption.Count = 0);
 
-        for (Map.Entry<User, ArrayList<MessageReaction>> userVote : UserVotes.entrySet()) {
+        for (Map.Entry<Member, ArrayList<MessageReaction>> userVote : UserVotes.entrySet()) {
 
-            entries.append(" ").append(Utilities.padRight(userVote.getKey().getName(), nameColumnPadding)).append(" |");
+            entries.append(" ").append(Utilities.padRight(userVote.getKey().getNickname(), nameColumnPadding)).append(" |");
 
             for (VoteOption voteOption : VoteOptions) {
 
@@ -145,8 +146,8 @@ class PollManager {
 
         int maxLength = "Name".length();
 
-        for (Map.Entry<User, ArrayList<MessageReaction>> userVote : UserVotes.entrySet()){
-            int userNameLength = userVote.getKey().getName().length();
+        for (Map.Entry<Member, ArrayList<MessageReaction>> userVote : UserVotes.entrySet()){
+            int userNameLength = userVote.getKey().getNickname().length();
             if(userNameLength > maxLength)
                 maxLength =  userNameLength;
         }
@@ -160,9 +161,9 @@ class PollManager {
         }
     }
 
-    void addUserVote(User user, MessageReaction messageReaction) {
+    void addUserVote(Member member, MessageReaction messageReaction) {
 
-        ArrayList<MessageReaction> messageReactions = UserVotes.get(user);
+        ArrayList<MessageReaction> messageReactions = UserVotes.get(member);
 
         if (messageReactions != null)  //not voted yet
         {
@@ -175,12 +176,12 @@ class PollManager {
             messageReactions.add(messageReaction);
         }
 
-        UserVotes.put(user, messageReactions);
+        UserVotes.put(member, messageReactions);
     }
 
-    void removeUserVote(User user, MessageReaction messageReaction) {
+    void removeUserVote(Member member, MessageReaction messageReaction) {
 
-        ArrayList<MessageReaction> messageReactions = UserVotes.get(user);
+        ArrayList<MessageReaction> messageReactions = UserVotes.get(member);
 
         if (messageReactions == null)  //already voted
             return;
@@ -188,7 +189,7 @@ class PollManager {
         messageReactions.remove(messageReaction);
 
         if(messageReactions.size() <= 0)
-            UserVotes.remove(user, messageReactions);
+            UserVotes.remove(member, messageReactions);
     }
 
     boolean verifyReaction(MessageReaction messageReaction) {

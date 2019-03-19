@@ -108,7 +108,7 @@ public class PollListener extends ListenerAdapter {
             return;
         }
 
-        selectedPollManager.addUserVote(event.getUser(), event.getReaction());
+        selectedPollManager.addUserVote(event.getMember(), event.getReaction());
 
         Message message = event.getChannel().getMessageById(messageId).complete();
         message.editMessage(createPollMessage(selectedPollManager)).queue();
@@ -146,7 +146,7 @@ public class PollListener extends ListenerAdapter {
             return;
         }
 
-        selectedPollManager.removeUserVote(event.getUser(), event.getReaction());
+        selectedPollManager.removeUserVote(event.getMember(), event.getReaction());
 
         Message message = event.getChannel().getMessageById(messageId).complete();
         message.editMessage(createPollMessage(selectedPollManager)).queue();
