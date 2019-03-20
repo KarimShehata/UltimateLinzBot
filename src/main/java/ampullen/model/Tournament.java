@@ -80,6 +80,7 @@ public class Tournament extends Observable implements Observer, Initializeable {
 			try {
 				this.getVotes().setAttendanceMsg(announcementchannel.getMessageById(this.getVotes().attendanceMsgId).complete());
 			}catch(Exception e) {
+				e.printStackTrace();
 				System.out.println("Attendancemessage not found");
 			}
 
@@ -87,6 +88,12 @@ public class Tournament extends Observable implements Observer, Initializeable {
 				this.getVotes().setEatingMsg(announcementchannel.getMessageById(this.getVotes().eatingMsgId).complete());
 			}catch(Exception e) {
 				System.out.println("Eatingmessage not found");
+			}
+
+			try {
+				this.getVotes().setTableMessage(announcementchannel.getMessageById(this.getVotes().tableMessageId).complete());
+			}catch(Exception e) {
+				System.out.println("Tablemessage not found");
 			}
 
 		}

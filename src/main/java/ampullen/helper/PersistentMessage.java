@@ -46,5 +46,8 @@ public class PersistentMessage {
 		if(pinned)
 			message.pin().complete();
 	}
-	
+
+	public Message getMessage() {
+		return message;
+	}
 }

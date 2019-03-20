@@ -38,6 +38,8 @@ public class Main{
 		jda.addEventListener((EventListener) event -> {
             if(event instanceof ReadyEvent) {
                 System.out.println("API is ready");
+
+                JsonModel.getInstance().tournaments();
             }
         });
 		//jda.addEventListener(new MainListener());
