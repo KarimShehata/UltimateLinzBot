@@ -1,9 +1,13 @@
 package ampullen.helper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javafx.util.Pair;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Emote;
@@ -12,6 +16,7 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 public class EmoteLimiter extends ListenerAdapter{
@@ -26,6 +31,8 @@ public class EmoteLimiter extends ListenerAdapter{
 	
 	List<EmoteListener> listeners = new ArrayList<>();
 
+	MessageChannel c;
+
 	public EmoteLimiter(Message m) {
 		this();
 		addMessage(m);
@@ -35,6 +42,8 @@ public class EmoteLimiter extends ListenerAdapter{
 	}
 	
 	public void start(MessageChannel c) {
+		this.c = c;
+
 		List<Message> sm = 
 			messages.stream()
 				.map(x -> c.getMessageById(x).complete()).collect(Collectors.toList());
@@ -71,7 +80,38 @@ public class EmoteLimiter extends ListenerAdapter{
 		
 		c.getJDA().addEventListener(this);
 	}
-	
+
+	public void manageBotReactions(){
+		manageBotReactions(messages.toArray(new Long[0]));
+	}
+
+	public void manageBotReactions(Long... messages){
+
+		Arrays.stream(messages).map(x -> c.getMessageById(x).complete()).forEach(m -> {
+
+			boolean botReactionsActive = m.getReactions().stream().allMatch(x -> x.getUsers().complete().stream().anyMatch(User::isBot));
+
+			List<Pair<MessageReaction, Integer>> sums =
+					m.getReactions().stream()
+					.map(x -> new Pair<>(x, x.getUsers().complete().size()))
+					.collect(Collectors.toList());
+
+			User bot = m.getJDA().getSelfUser();
+
+			if(botReactionsActive && sums.stream().allMatch(x -> x.getValue() > 1)){
+
+				m.getReactions().forEach(messageReaction -> messageReaction.removeReaction(bot).complete());
+
+			}else if(!botReactionsActive && sums.stream().anyMatch(x -> x.getValue() < 2)){
+
+				allowedEmotes.forEach(s -> m.addReaction(s).complete());
+
+			}
+
+		});
+
+	}
+
 	public Emote getEmote(String s, Channel c) {
 		return c.getGuild().getEmotesByName(s, true).stream().findFirst().orElse(null);
 	}
@@ -127,6 +167,20 @@ public class EmoteLimiter extends ListenerAdapter{
 	}
 
 	@Override
+	public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
+		super.onMessageReactionRemove(event);
+
+		long id = event.getMessageIdLong();
+
+		if(messages.contains(id)) {
+
+			manageBotReactions(id);
+
+		}
+
+	}
+
+	@Override
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
 		super.onMessageReactionAdd(event);
 		
@@ -138,9 +192,9 @@ public class EmoteLimiter extends ListenerAdapter{
 		if(messages.contains(id)) {
 			
 			if(limitEmotes) {
-				if(!allowedEmotes.contains(event.getReactionEmote().getEmote().getName())) {
+				if(event.getReactionEmote().getEmote() == null || !allowedEmotes.contains(event.getReactionEmote().getEmote().getName())) {
 					
-					System.out.println("Remove1: ");
+					System.out.println("Remove1 (forbidden emote): " + event.getReactionEmote().getName());
 					event.getReaction().removeReaction(user).complete();
 					return;
 					
@@ -151,7 +205,6 @@ public class EmoteLimiter extends ListenerAdapter{
 				
 				//Except Bots
 				if(event.getUser().isBot()){
-					System.out.println("Bot return");
 					return;
 				}
 				
@@ -164,7 +217,7 @@ public class EmoteLimiter extends ListenerAdapter{
 					r.getUsers().complete().forEach(x -> {
 						if(user.getIdLong() == x.getIdLong()) {
 							//Remove reaction
-							System.out.println("Remove2");
+							System.out.println("Remove2 (other remote selected)");
 							r.removeReaction(user).complete();
 							listeners.forEach(y -> y.emoteRemove(event, r));
 						}
@@ -174,6 +227,7 @@ public class EmoteLimiter extends ListenerAdapter{
 			}
 			
 			listeners.forEach(x -> x.emoteAdd(event));
+			manageBotReactions(id);
 			
 		}
 		

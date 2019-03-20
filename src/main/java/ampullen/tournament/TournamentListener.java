@@ -238,7 +238,6 @@ public class TournamentListener extends ListenerAdapterCommand{
 
 			//Create Info post
 			Message m = newc.sendMessage(x.getInfoMarkup()).complete();
-			m.pin().submit();
 			x.getVotes().setAttendanceMsg(m);
 
 			Message tableMessage = newc.sendMessage("AttendanceTable").complete();
@@ -246,6 +245,8 @@ public class TournamentListener extends ListenerAdapterCommand{
 			
 			m = newc.sendMessage("Fleisch / Veggie").complete();
 			x.getVotes().setEatingMsg(m);
+
+			m.pin().submit(); //Pin here, so the Info Message appears on the top
 
 			event.getJDA().removeEventListener(pinremover);
 			
@@ -277,12 +278,19 @@ public class TournamentListener extends ListenerAdapterCommand{
 		.setLimitReactions(true).start(event.getChannel());
 		System.out.println("test");*/
 
-		Message m = event.getChannel().sendMessage("Testmessage").complete();
-		PinMessageRemoveListener pinremover = new PinMessageRemoveListener(event.getTextChannel());
-		event.getJDA().addEventListener(pinremover);
-		m.pin().complete();
+		event.getJDA().getTextChannelById(557833273456328716L).getMessageById(557833275889025034L).complete()
+		.getReactions().forEach(x -> {
+			System.out.println(x.toString() + " | ");
+			x.getUsers().complete().forEach(y -> System.out.print(y.getName()));
+			System.out.println();
+		});
 
-		event.getJDA().removeEventListener(pinremover);
+//		Message m = event.getChannel().sendMessage("Testmessage").complete();
+//		PinMessageRemoveListener pinremover = new PinMessageRemoveListener(event.getTextChannel());
+//		event.getJDA().addEventListener(pinremover);
+//		m.pin().complete();
+//
+//		event.getJDA().removeEventListener(pinremover);
 		
 //		Conversation c = new Conversation()
 //				.build()
