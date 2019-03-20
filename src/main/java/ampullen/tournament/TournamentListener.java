@@ -231,6 +231,10 @@ public class TournamentListener extends ListenerAdapterCommand{
 				newc.getManager().putPermissionOverride(bot, Permission.ALL_CHANNEL_PERMISSIONS | Permission.ALL_TEXT_PERMISSIONS, 0);
 			}
 
+			PinMessageRemoveListener pinremover = new PinMessageRemoveListener(newc);
+
+			event.getJDA().addEventListener(pinremover);
+
 			//Create Info post
 			Message m = newc.sendMessage(x.getInfoMarkup()).complete();
 			m.pin().submit();
@@ -244,6 +248,8 @@ public class TournamentListener extends ListenerAdapterCommand{
 			.setAllowedEmotes(Arrays.asList("in", "50", "out"))
 			.setDisplayAllowed(true)
 			.setLimitReactions(true).start(event.getChannel());*/
+
+			event.getJDA().removeEventListener(pinremover);
 			
 			x.setAnnouncementChannel(newc.getIdLong());
 			
@@ -274,6 +280,13 @@ public class TournamentListener extends ListenerAdapterCommand{
 		.setDisplayAllowed(true)
 		.setLimitReactions(true).start(event.getChannel());
 		System.out.println("test");*/
+
+		Message m = event.getChannel().sendMessage("Testmessage").complete();
+		PinMessageRemoveListener pinremover = new PinMessageRemoveListener(event.getTextChannel());
+		event.getJDA().addEventListener(pinremover);
+		m.pin().complete();
+
+		event.getJDA().removeEventListener(pinremover);
 		
 		Conversation c = new Conversation()
 				.build()
