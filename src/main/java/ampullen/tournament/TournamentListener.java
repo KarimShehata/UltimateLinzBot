@@ -43,7 +43,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 
 	}
 
-	@Permissioned({"Vorstand"})
+	@Permissioned({"Vorstand", "Moderator"})
 	@Blocking
 	public void editinfo(MessageReceivedEvent event, String[] msg){
 
@@ -138,7 +138,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 
 				Guild guild = event.getJDA().getGuilds().get(0);
 				
-				Category c = guild.getCategoriesByName("Archiv", true).stream().findFirst().orElse(null);
+				Category c = guild.getCategoriesByName("Turnierarchiv", true).stream().findFirst().orElse(null);
 
 				if(c == null){
 					System.out.println("Category Archive is not created!!");
@@ -234,6 +234,9 @@ public class TournamentListener extends ListenerAdapterCommand{
 
 			PinMessageRemoveListener pinremover = new PinMessageRemoveListener(newc);
 
+			pinremover.afterCount(2, () ->
+					event.getJDA().removeEventListener(pinremover));
+
 			event.getJDA().addEventListener(pinremover);
 
 			//Create Info post
@@ -246,9 +249,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 			m = newc.sendMessage("Fleisch / Veggie").complete();
 			x.getVotes().setEatingMsg(m);
 
-			m.pin().submit(); //Pin here, so the Info Message appears on the top
-
-			event.getJDA().removeEventListener(pinremover);
+			m.pin().complete(); //Pin here, so the Info Message appears on the top
 			
 			x.setAnnouncementChannel(newc.getIdLong());
 			
@@ -278,19 +279,22 @@ public class TournamentListener extends ListenerAdapterCommand{
 		.setLimitReactions(true).start(event.getChannel());
 		System.out.println("test");*/
 
-		event.getJDA().getTextChannelById(557833273456328716L).getMessageById(557833275889025034L).complete()
-		.getReactions().forEach(x -> {
-			System.out.println(x.toString() + " | ");
-			x.getUsers().complete().forEach(y -> System.out.print(y.getName()));
-			System.out.println();
-		});
+//		event.getJDA().getTextChannelById(557833273456328716L).getMessageById(557833275889025034L).complete()
+//		.getReactions().forEach(x -> {
+//			System.out.println(x.toString() + " | ");
+//			x.getUsers().complete().forEach(y -> System.out.print(y.getName()));
+//			System.out.println();
+//		});
 
 //		Message m = event.getChannel().sendMessage("Testmessage").complete();
 //		PinMessageRemoveListener pinremover = new PinMessageRemoveListener(event.getTextChannel());
+//
+//		pinremover.afterCount(1, () -> {
+//			event.getJDA().removeEventListener(pinremover);
+//		});
+//
 //		event.getJDA().addEventListener(pinremover);
 //		m.pin().complete();
-//
-//		event.getJDA().removeEventListener(pinremover);
 		
 //		Conversation c = new Conversation()
 //				.build()
@@ -324,12 +328,13 @@ public class TournamentListener extends ListenerAdapterCommand{
 		deleteCommandAfter(15000);
 		
 	}
-	
+
+	@Blocking
 	public void info(MessageReceivedEvent event, String[] msg){
-		Tournament t = getTournament(msg, 2, event.getMessage());
+		Tournament t = getTournament(msg, 3, event.getMessage());
 		
 		if(t != null){
-			MessageTimer.deleteAfter(sendSync(event.getChannel(), t.getInfoMarkup()), 30000);
+			sendSync(event.getChannel(), t.getInfoMarkup());
 		}else{
 			MessageTimer.deleteAfter(sendSync(event.getChannel(), "Turnier konnte nicht gefunden werden!"), 15000);
 		}

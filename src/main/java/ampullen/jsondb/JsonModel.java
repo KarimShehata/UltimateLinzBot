@@ -36,7 +36,8 @@ public class JsonModel implements Observer{
 
 		return this.tournaments().stream()
 				.filter(x -> x.getName().toLowerCase().startsWith(name.toLowerCase()))
-				.findFirst().orElse(null);
+				.min((o1, o2) -> Long.compare(o1.getDate(), o2.getDate()) * -1)
+				.orElse(null);
 	}
 	
 	private JsonModel() {
