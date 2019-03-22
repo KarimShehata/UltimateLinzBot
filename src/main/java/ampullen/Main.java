@@ -6,7 +6,6 @@ import javax.security.auth.login.LoginException;
 
 import ampullen.jsondb.JsonModel;
 import ampullen.model.Tournament;
-import ampullen.registration.RegistrationListener;
 import ampullen.tournament.TournamentListener;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -17,34 +16,40 @@ import net.dv8tion.jda.core.hooks.EventListener;
 
 public class Main{
 
-	public static JDA jda;
-	public static boolean isInDeveloperMode = true;
-	public static String Prefix;
+	public static JDA JDA;
+	public static DataModel DataModel;
+
+	static String prefix;
+	static boolean isInDeveloperMode = true;
 
 	public static void main(String[] args){
 
         String token = GetToken();
-		Prefix = Main.isInDeveloperMode ? "?" : "!";
+		prefix = isInDeveloperMode ? "?" : "!";
+
+		DataModel = ampullen.DataModel.Initialize();
 
 		try {
-			jda = new JDABuilder(token)
-					.setGame(Game.playing(Prefix+"help"))
+			JDA = new JDABuilder(token)
+					.setGame(Game.playing(prefix +"help"))
 					.build();
 		} catch (LoginException e) {
 		    e.printStackTrace();
 		}
 
-		//JDABot bot = jda.asBot();
-		jda.addEventListener((EventListener) event -> {
+		//JDABot bot = JDA.asBot();
+		JDA.addEventListener((EventListener) event -> {
             if(event instanceof ReadyEvent) {
                 System.out.println("API is ready");
                 initTournaments();
             }
         });
-		//jda.addEventListener(new MainListener());
-		jda.addEventListener(new TournamentListener());
-		//jda.addEventListener(new RegistrationListener());
-		jda.addEventListener(new PollListener());
+
+		JDA.addEventListener(new TournamentListener(prefix + "t"));
+		JDA.addEventListener(new PollListener(prefix + "p"));
+
+		//JDA.addEventListener(new MainListener());
+		//JDA.addEventListener(new RegistrationListener());
 	}
 	
 	private static void initTournaments() {
@@ -56,7 +61,7 @@ public class Main{
 	}
 
 	public static void initTournament(Tournament tournament) {
-		TextChannel announcementchannel = jda.getTextChannelById(tournament.getAnnouncementChannel());
+		TextChannel announcementchannel = JDA.getTextChannelById(tournament.getAnnouncementChannel());
 		if(announcementchannel != null) {
 			//todo wtf? @raphael?
 			if(tournament.getName().contains("anta")) {

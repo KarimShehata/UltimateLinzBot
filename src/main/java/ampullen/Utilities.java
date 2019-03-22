@@ -1,6 +1,8 @@
 package ampullen;
 
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.Role;
 
 import java.util.regex.Matcher;
@@ -33,5 +35,9 @@ public class Utilities {
         }
 
         return false;
+    }
+
+    public static Message sendMessage(MessageChannel messageChannel, Message message) {
+        return messageChannel.sendMessage(message).complete();
     }
 }

@@ -20,8 +20,8 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 	String cmd;
 	Message lastMessage;
 	
-	public ListenerAdapterCommand(String cmd) {
-		this.cmd = Main.Prefix + cmd;
+	public ListenerAdapterCommand(String commandString) {
+		this.cmd = commandString;
 		this.lastMessage = null;
 	}
 	

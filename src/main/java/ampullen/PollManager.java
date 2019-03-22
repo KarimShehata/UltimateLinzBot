@@ -1,14 +1,14 @@
 package ampullen;
 
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageReaction;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 class PollManager {
@@ -20,23 +20,25 @@ class PollManager {
     private ArrayList<VoteOption> VoteOptions;
     private HashMap<Member, ArrayList<MessageReaction>> UserVotes;
 
-    private PollManager() {
+    static ArrayList<PollManager> managers = new ArrayList<>();
+
+    public PollManager() {
         Users = new ArrayList<>();
         VoteOptions = new ArrayList<>();
         UserVotes = new HashMap<>();
     }
 
-    static PollManager createPoll(String commandString) {
+    static boolean create(String commandString, MessageChannel messageChannel) {
 
         // split by commands
         String[] commandParts = commandString.split("(?=/)");
 
         if (commandParts.length != 4)
-            return null;
+            return false;
 
         // /poll name /T type /O optionA, optionB, optionC, .. /E emoteA, emoteB, emoteC, ..
 
-        String pollName = commandParts[0].replace(Main.Prefix + "p ", "").trim();
+        String pollName = commandParts[0].replace(Main.prefix + "p ", "").trim();
         String pollType = commandParts[1].replace("/t ", "").trim();
         String[] options = commandParts[2].replace("/o ", "").split(",");
         String[] emotes = commandParts[3].replace("/e ", "").split(",");
@@ -53,15 +55,48 @@ class PollManager {
                 pollManager.PollType = ampullen.PollType.MultipleChoice;
                 break;
             default:
-                return null;
+                return false;
         }
 
         boolean areOptionsValid = pollManager.createOptions(options, emotes);
 
         if (!areOptionsValid)
-            return null;
+            return false;
 
-        return pollManager;
+        Message message = pollManager.createPollMessage();
+
+        pollManager.PollMessage = Utilities.sendMessage(messageChannel, message);
+        pollManager.addInitialReactions();
+
+        managers.add(pollManager);
+
+        return true;
+    }
+
+    public static PollManager getPollManagerByMessageId(String messageId) {
+
+        PollManager selectedPollManager = null;
+
+        for (PollManager pollManager : managers) {
+            if (!pollManager.PollMessage.getId().equals(messageId)) continue;
+
+            selectedPollManager = pollManager;
+        }
+
+        return selectedPollManager;
+    }
+
+    Message createPollMessage() {
+
+        String name = PollName;
+
+        String table = createAsciiTable();
+
+        MessageBuilder messageBuilder = new MessageBuilder();
+        messageBuilder.append(name);
+        messageBuilder.appendCodeBlock(table, "");
+
+        return messageBuilder.build();
     }
 
     private boolean createOptions(String[] options, String[] emotes) {

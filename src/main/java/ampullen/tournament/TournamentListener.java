@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 
 public class TournamentListener extends ListenerAdapterCommand{
 	
-	public TournamentListener() {
-		super("t");
+	public TournamentListener(String commandString) {
+		super(commandString);
 	}
 
 	private Tournament getTournament(String[] args, int index, Message msg){
