@@ -17,6 +17,8 @@ import com.squareup.moshi.Types;
 import ampullen.model.Tournament;
 import ampullen.model.TournamentVotes;
 
+import static ampullen.Main.jda;
+
 public class JsonModel implements Observer{
 
 	private static final File BASE_DIRECTORY = new File(System.getProperty("user.dir") + "/db");
@@ -29,17 +31,14 @@ public class JsonModel implements Observer{
 	public List<Tournament> tournaments() {
 		return tournaments;
 	}
-	
-	/*public void addTournament(Tournament t){
-		t.addObserver(this);
-		tournaments.add(t);
-		save(tournaments);
-	}*/
 
-	/*public void setTournaments(List<Tournament> tournaments) {
-		subscribe(tournaments);
-		this.tournaments = tournaments;
-	}*/
+	public Tournament findTouramentByName(String name){
+
+		return this.tournaments().stream()
+				.filter(x -> x.getName().toLowerCase().startsWith(name.toLowerCase()))
+				.min((o1, o2) -> Long.compare(o1.getDate(), o2.getDate()) * -1)
+				.orElse(null);
+	}
 	
 	private JsonModel() {
 		
@@ -53,13 +52,6 @@ public class JsonModel implements Observer{
 		if(!BASE_DIRECTORY.exists()){
 			BASE_DIRECTORY.mkdirs();
 		}
-		
-		/*boolean empty = false;
-		if(list.size() == 0) {
-			list.add((T)new Object());
-			empty = true;
-			Your mom gay
-		}*/
 		
 		String name = "";
 		Type type = null;
@@ -78,7 +70,7 @@ public class JsonModel implements Observer{
 		
 		JsonAdapter<List<T>> adapter = moshi.adapter(type);
 		String s = adapter.toJson(list);
-		s.replaceAll("[€$äöüÄÖÜ]", "");
+		s = s.replaceAll("[€$äöüÄÖÜ]", "");
 		
 		try (FileWriter fw = new FileWriter(f)){
 			fw.write(s);
@@ -131,6 +123,12 @@ public class JsonModel implements Observer{
 							//TODO Other Classes
 						}else{
 							System.out.println("Error 1");
+						}
+
+						if(element instanceof Initializeable){
+
+							observablelist.forEach(x -> ((Initializeable) x).init(jda));
+
 						}
 					
 					}

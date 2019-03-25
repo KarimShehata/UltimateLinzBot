@@ -43,8 +43,13 @@ public class PersistentMessage {
 				.setLimitReactions(true);
 		limiter.start(c);
 		
-		if(pinned)
+		if(pinned) {
 			message.pin().complete();
+			System.out.println("PersistentMsg pin complete");
+		}
 	}
-	
+
+	public Message getMessage() {
+		return message;
+	}
 }

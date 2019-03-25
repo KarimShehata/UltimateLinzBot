@@ -2,13 +2,16 @@ package ampullen.jsondb;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Observable implements IObservable{
 	
-	protected transient List<Observer> observers = new ArrayList<>();
+	private final transient List<Observer> observers = new CopyOnWriteArrayList<>();
 	
 	public void notifyObservers(){
-		observers.forEach(x -> x.update(this));
+		synchronized (observers){
+			observers.forEach(x -> x.update(this));
+		}
 	}
 	
 	public void addObserver(Observer o){

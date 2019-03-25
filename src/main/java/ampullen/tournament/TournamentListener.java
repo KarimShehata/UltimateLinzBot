@@ -2,6 +2,7 @@ package ampullen.tournament;
 
 import ampullen.Main;
 import ampullen.MessageTimer;
+import ampullen.PinMessageRemoveListener;
 import ampullen.Utilities;
 import ampullen.helper.Conversation;
 import ampullen.helper.Prompt;
@@ -49,11 +50,13 @@ public class TournamentListener extends ListenerAdapterCommand{
 	@Permissioned({"Vorstand", "Moderator"})
 	@Blocking
 	public void editinfo(MessageReceivedEvent event, String[] msg){
-		
-		Tournament tournament = getTournament(msg, 2, event.getMessage());
+
+		//TODO Argument 2 und 3 funktionieren nicht richtig
+
+		Tournament tournament = getTournament(msg, 3, event.getMessage());
 		
 		if(tournament == null) {
-			send(event.getChannel(), "Der Command kann nur vom Verwaltungschannel eines Turniers abgesetzt werden!");
+			send(event.getChannel(), "Turnier nicht gefunden!");
 			return;
 		}
 		
@@ -71,7 +74,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 				prompt += String.format(" - %s: %s\n", arr[0], arr[1]);
 				
 			}
-			prompt += "Welches Infofeld willst du �ndern?";
+			prompt += "Welches Infofeld willst du ändern?";
 			
 			parameter = new Prompt(prompt, event.getChannel(), event.getAuthor()).setDelete(30000).promptSync();
 			
@@ -92,6 +95,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 				if(!exists) {
 					Message m = event.getChannel().sendMessage("Abbruch").complete();
 					MessageTimer.deleteAfter(m, 20000);
+					return;
 				}
 				
 			}
@@ -106,7 +110,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 		
 		TournamentCreator.parseFieldInto(tournament, value, TournamentCreator.getFieldFromLabel(parameter));
 		
-		MessageTimer.deleteAfter(sendSync(event.getChannel(), "Feld " + parameter + " gesetzt auf " + value), 30000);
+		/*MessageTimer.deleteAfter(*/sendSync(event.getChannel(), "Feld " + parameter + " gesetzt auf " + value);//, 30000);
 		
 	}
 
@@ -138,7 +142,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 
 				Guild guild = event.getJDA().getGuilds().get(0);
 				
-				Category c = guild.getCategoriesByName("Archiv", true).stream().findFirst().orElse(null);
+				Category c = guild.getCategoriesByName("Turnierarchiv", true).stream().findFirst().orElse(null);
 
 				if(c == null){
 					System.out.println("Category Archive is not created!!");
@@ -222,7 +226,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 			Role member = guild.getRolesByName("Vereinsmitglied", true).stream().findFirst().orElse(null);
 			if(member != null) {
 				
-				newc.getManager().putPermissionOverride(member, 0, Permission.MESSAGE_WRITE.getRawValue());
+				newc.getManager().putPermissionOverride(member, 0, Permission.MESSAGE_WRITE.getRawValue()).complete();
 				
 			}
 			
@@ -232,27 +236,31 @@ public class TournamentListener extends ListenerAdapterCommand{
 				newc.getManager().putPermissionOverride(bot, Permission.ALL_CHANNEL_PERMISSIONS | Permission.ALL_TEXT_PERMISSIONS, 0);
 			}
 
+			PinMessageRemoveListener pinremover = new PinMessageRemoveListener(newc);
+
+			pinremover.afterCount(2, () ->
+					event.getJDA().removeEventListener(pinremover));
+
+			event.getJDA().addEventListener(pinremover);
+
 			//Create Info post
 			Message m = newc.sendMessage(x.getInfoMarkup()).complete();
-			m.pin().submit();
 			x.getVotes().setAttendanceMsg(m);
+
+			Message tableMessage = newc.sendMessage("AttendanceTable").complete();
+			x.getVotes().setTableMessage(tableMessage);
 			
 			m = newc.sendMessage("Fleisch / Veggie").complete();
 			x.getVotes().setEatingMsg(m);
-			//newc.pinMessageById(m.getIdLong()).complete();
-			
-			/*new EmoteLimiter(m)
-			.setAllowedEmotes(Arrays.asList("in", "50", "out"))
-			.setDisplayAllowed(true)
-			.setLimitReactions(true).start(event.getChannel());*/
+
+			m.pin().complete(); //Pin here, so the Info Message appears on the top
 			
 			x.setAnnouncementChannel(newc.getIdLong());
 			
 			//event.getGuild().getController().modifyTextChannelPositions().selectPosition(newc).moveTo(last + 1);
-			
+
+			x.init(event.getJDA());
 			JsonModel.getInstance().tournaments().add(x);
-			
-			Main.initTournament(x);
 		};
 		
 		new TournamentCreator(channel).create(consumer);
@@ -274,20 +282,37 @@ public class TournamentListener extends ListenerAdapterCommand{
 		.setDisplayAllowed(true)
 		.setLimitReactions(true).start(event.getChannel());
 		System.out.println("test");*/
+
+//		event.getJDA().getTextChannelById(557833273456328716L).getMessageById(557833275889025034L).complete()
+//		.getReactions().forEach(x -> {
+//			System.out.println(x.toString() + " | ");
+//			x.getUsers().complete().forEach(y -> System.out.print(y.getName()));
+//			System.out.println();
+//		});
+
+//		Message m = event.getChannel().sendMessage("Testmessage").complete();
+//		PinMessageRemoveListener pinremover = new PinMessageRemoveListener(event.getTextChannel());
+//
+//		pinremover.afterCount(1, () -> {
+//			event.getJDA().removeEventListener(pinremover);
+//		});
+//
+//		event.getJDA().addEventListener(pinremover);
+//		m.pin().complete();
 		
-		Conversation c = new Conversation()
-				.build()
-				.addStepA("Wie gehts dir?", (x, y) -> y.c.put("1", x))
-				.addOption("Wirklich?", x -> x.equals("Ja") ? "true" : "false")
-					.addOption("false", "Was dann?", (x, y) -> x.equals("Ja") ? "ja" : "nein")
-						.addStepLast("ja", "Wieso dann nicht wirklich?? Antworte nicht", (x, y) -> {})
-						.addStepLast("nein", "Ok." , null)
-						.done()
-					.addStepLast("true", "Consistent", (x, y) -> {})
-					.done()
-				.finished(x -> System.out.println("How: " + x.c.get("1")))
-				.start(event.getChannel(), event.getAuthor())
-				.out();
+//		Conversation c = new Conversation()
+//				.build()
+//				.addStepA("Wie gehts dir?", (x, y) -> y.c.put("1", x))
+//				.addOption("Wirklich?", x -> x.equals("Ja") ? "true" : "false")
+//					.addOption("false", "Was dann?", (x, y) -> x.equals("Ja") ? "ja" : "nein")
+//						.addStepLast("ja", "Wieso dann nicht wirklich?? Antworte nicht", (x, y) -> {})
+//						.addStepLast("nein", "Ok." , null)
+//						.done()
+//					.addStepLast("true", "Consistent", (x, y) -> {})
+//					.done()
+//				.finished(x -> System.out.println("How: " + x.c.get("1")))
+//				.start(event.getChannel(), event.getAuthor())
+//				.out();
 			
 		;
 		
@@ -301,18 +326,19 @@ public class TournamentListener extends ListenerAdapterCommand{
     			.sorted((x, y) -> Long.compare(x.getDate(), y.getDate()))
     			.map(Tournament::getName)
     			.reduce((x, y) -> x + "\n" + y).orElse("Keine Turniere zurzeit verfuegbar");
-		
-		Message m = sendSync(event.getChannel(), s);
+
+		Message m = event.getChannel().sendMessage(new MessageBuilder().appendCodeBlock(s, "").build()).complete();
 		MessageTimer.deleteAfter(m, 15000);
 		deleteCommandAfter(15000);
 		
 	}
-	
+
+	@Blocking
 	public void info(MessageReceivedEvent event, String[] msg){
-		Tournament t = getTournament(msg, 2, event.getMessage());
+		Tournament t = getTournament(msg, 3, event.getMessage());
 		
 		if(t != null){
-			MessageTimer.deleteAfter(sendSync(event.getChannel(), t.getInfoMarkup()), 30000);
+			sendSync(event.getChannel(), t.getInfoMarkup());
 		}else{
 			MessageTimer.deleteAfter(sendSync(event.getChannel(), "Turnier konnte nicht gefunden werden!"), 15000);
 		}

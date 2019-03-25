@@ -6,6 +6,8 @@ import java.util.Map;
 
 import javax.naming.OperationNotSupportedException;
 
+import ampullen.AsciiMessageObserver;
+import ampullen.AsciiTable;
 import ampullen.helper.EmoteLimiter.EmoteListener;
 import ampullen.helper.PersistentMessage;
 import ampullen.jsondb.IObservable;
@@ -14,6 +16,7 @@ import ampullen.jsondb.Observer;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import ampullen.AsciiTable.ColumnDefinition;
 
 public class TournamentVotes extends Observable implements Observer{
 	
@@ -23,9 +26,13 @@ public class TournamentVotes extends Observable implements Observer{
 	public transient PersistentMessage eatingMsg;
 	public long attendanceMsgId;
 	public long eatingMsgId;
-	
+	public long tableMessageId;
+	public transient Message tableMessage;
+
+	public transient AsciiMessageObserver asciiMessageObserver;
+
 	public TournamentVotes() {
-		
+
 	}
 	
 	public Choices getChoices(String user) {
@@ -85,6 +92,10 @@ public class TournamentVotes extends Observable implements Observer{
 					attendance.put(uname, choices);
 				}
 				choices.setAttendance(c);
+
+				//Notify table
+				asciiMessageObserver.answerChanged(uname, emote);
+
 			}
 		});
 		notifyObservers();
@@ -129,7 +140,20 @@ public class TournamentVotes extends Observable implements Observer{
 		
 		notifyObservers();
 	}
-	
+
+	public void setTableMessage(Message tableMessage) {
+		this.tableMessage = tableMessage;
+
+		tableMessageId = tableMessage.getIdLong();
+
+		this.asciiMessageObserver = new AsciiMessageObserver(this, tableMessage);
+
+		this.getAttendance().forEach((s, choices) -> asciiMessageObserver.answerChanged(s, choices.a.name()));
+
+		this.asciiMessageObserver.editMessage(); //If no Choices are there yet, render empty Table
+
+	}
+
 	@Override
 	public void addObserver(Observer o) {
 		super.addObserver(o);

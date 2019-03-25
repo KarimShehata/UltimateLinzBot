@@ -4,10 +4,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import ampullen.jsondb.IObservable;
+import ampullen.jsondb.Initializeable;
 import ampullen.jsondb.Observable;
 import ampullen.jsondb.Observer;
+import ampullen.tournament.TournamentChangeListener;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.TextChannel;
 
-public class Tournament extends Observable implements Observer{
+public class Tournament extends Observable implements Observer, Initializeable {
 
 	int id;
 	String name;
@@ -21,6 +25,7 @@ public class Tournament extends Observable implements Observer{
 	long registrationDeadline;
 	long paymentDeadline;
 	String schedule;
+	String playersinfo;
 	String ucLink;
 	String comment;
 	TournamentVotes votes = new TournamentVotes();
@@ -38,7 +43,6 @@ public class Tournament extends Observable implements Observer{
 		this.date = date;
 		this.location = location;
 		this.format = format;
-		//this.venue = venue;
 		this.teamFee = teamFee;
 		this.division = division;
 		this.playersFee = playersFee;
@@ -48,7 +52,7 @@ public class Tournament extends Observable implements Observer{
 		this.votes.addObserver(this);
 		this.votes = votes;
 	}
-	
+
 	@Override
 	public void addObserver(Observer o) {
 		super.addObserver(o);
@@ -63,6 +67,37 @@ public class Tournament extends Observable implements Observer{
 	public TournamentVotes getVotes() {
 		votes.addObserver(this);
 		return votes;
+	}
+
+	@Override
+	public void init(JDA jda) {
+
+		this.addObserver(new TournamentChangeListener(jda));
+
+		TextChannel announcementchannel = jda.getTextChannelById(this.getAnnouncementChannel());
+		if(announcementchannel != null) {
+
+			try {
+				this.getVotes().setAttendanceMsg(announcementchannel.getMessageById(this.getVotes().attendanceMsgId).complete());
+			}catch(Exception e) {
+				e.printStackTrace();
+				System.out.println("Attendancemessage not found");
+			}
+
+			try {
+				this.getVotes().setEatingMsg(announcementchannel.getMessageById(this.getVotes().eatingMsgId).complete());
+			}catch(Exception e) {
+				System.out.println("Eatingmessage not found");
+			}
+
+			try {
+				this.getVotes().setTableMessage(announcementchannel.getMessageById(this.getVotes().tableMessageId).complete());
+			}catch(Exception e) {
+				System.out.println("Tablemessage not found");
+			}
+
+		}
+
 	}
 
 	/*public void setVotes(TournamentVotes votes) {
@@ -132,15 +167,6 @@ public class Tournament extends Observable implements Observer{
 		notifyObservers();
 	}
 
-	/*public String getVenue() {
-		return venue;
-	}
-
-	public void setVenue(String venue) {
-		this.venue = venue;
-		notifyObservers();
-	}*/
-
 	public String getTeamFee() {
 		return teamFee;
 	}
@@ -186,6 +212,15 @@ public class Tournament extends Observable implements Observer{
 		notifyObservers();
 	}
 
+	public String getPlayersinfo() {
+		return playersinfo;
+	}
+
+	public void setPlayersinfo(String playersinfo) {
+		this.playersinfo = playersinfo;
+		notifyObservers();
+	}
+
 	public String getUcLink() {
 		return ucLink;
 	}
@@ -221,7 +256,7 @@ public class Tournament extends Observable implements Observer{
 		return "Tournament [name=" + name + ", date=" + date + ", location=" + location + ", format=" + format
 				+ ", division=" + division + ", teamFee=" + teamFee + ", playersFee=" + playersFee
 				+ ", registrationDeadline=" + registrationDeadline + ", paymentDeadline=" + paymentDeadline
-				+ ", schedule=" + schedule + ", ucLink=" + ucLink + ", comment=" + comment + "]";
+				+ ", schedule=" + schedule + ", playersinfo=" + playersinfo + ", ucLink=" + ucLink + ", comment=" + comment + "]";
 	}
 	
 	public String getInfoMarkup(){
@@ -239,12 +274,12 @@ public class Tournament extends Observable implements Observer{
 				+ "**Deadline Zahlung**: " + dateformat.format(paymentDeadline) + "\n\n"
 				, name, location, format, division, teamFee, playersFee);
 		
-		s += (schedule != null ? String.format("**Schedule:** %s\n\n", schedule) : "");
-		s += (ucLink != null ? String.format("**Ultimate Central:** %s\n\n", ucLink) : "");
-		s += (comment != null ? String.format("**Kommentar:** %s", comment) : "");
+		s += schedule != null ? String.format("**Schedule:** %s\n\n", schedule) : "";
+		s += playersinfo != null ? String.format("**Playersinfo** %s\n\n", playersinfo) : "";
+		s += ucLink != null ? String.format("**Ultimate Central:** %s\n\n", ucLink) : "";
+		s += comment != null ? String.format("**Kommentar:** %s", comment) : "";
 		
 		return s;
 		
 	}
-	
 }
