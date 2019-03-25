@@ -1,8 +1,11 @@
 package ampullen;
 
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageReaction;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,65 +13,99 @@ import java.util.Map;
 
 class PollManager {
 
-    private ArrayList<String> Users;
     Message PollMessage;
-    private PollType PollType;
     String PollName;
+    private ArrayList<String> Users;
+    private PollType PollType;
     private ArrayList<VoteOption> VoteOptions;
-    private HashMap<User, ArrayList<MessageReaction>> UserVotes;
+    private HashMap<Member, ArrayList<MessageReaction>> UserVotes;
 
-    private PollManager() {
+    static ArrayList<PollManager> managers = new ArrayList<>();
+
+    public PollManager() {
         Users = new ArrayList<>();
         VoteOptions = new ArrayList<>();
         UserVotes = new HashMap<>();
     }
 
-    static PollManager createPoll(String commandString) {
+    static boolean create(String commandString, MessageChannel messageChannel) {
 
         // split by commands
         String[] commandParts = commandString.split("(?=/)");
 
-        if(commandParts.length != 4)
-            return null;
+        if (commandParts.length != 4)
+            return false;
 
         // /poll name /T type /O optionA, optionB, optionC, .. /E emoteA, emoteB, emoteC, ..
 
-        String pollName = commandParts[0].replace(Main.Prefix + "p ", "").trim();
-        String pollType = commandParts[1].replace("/T ", "").trim();
-        String[] options = commandParts[2].replace("/O ", "").split(",");
-        String[] emotes = commandParts[3].replace("/E ", "").split(",");
+        String pollName = commandParts[0].replace(Main.prefix + "p ", "").trim();
+        String pollType = commandParts[1].replace("/t ", "").trim();
+        String[] options = commandParts[2].replace("/o ", "").split(",");
+        String[] emotes = commandParts[3].replace("/e ", "").split(",");
 
         PollManager pollManager = new PollManager();
 
         pollManager.PollName = pollName;
 
         switch (pollType) {
-            case "Single":
+            case "S":
                 pollManager.PollType = ampullen.PollType.SingleChoice;
                 break;
-            case "Multiple":
+            case "M":
                 pollManager.PollType = ampullen.PollType.MultipleChoice;
                 break;
             default:
-                return null;
+                return false;
         }
 
         boolean areOptionsValid = pollManager.createOptions(options, emotes);
 
-        if(!areOptionsValid)
-            return null;
+        if (!areOptionsValid)
+            return false;
 
-        return pollManager;
+        Message message = pollManager.createPollMessage();
+
+        pollManager.PollMessage = Utilities.sendMessage(messageChannel, message);
+        pollManager.addInitialReactions();
+
+        managers.add(pollManager);
+
+        return true;
+    }
+
+    public static PollManager getPollManagerByMessageId(String messageId) {
+
+        PollManager selectedPollManager = null;
+
+        for (PollManager pollManager : managers) {
+            if (!pollManager.PollMessage.getId().equals(messageId)) continue;
+
+            selectedPollManager = pollManager;
+        }
+
+        return selectedPollManager;
+    }
+
+    Message createPollMessage() {
+
+        String name = PollName;
+
+        String table = createAsciiTable();
+
+        MessageBuilder messageBuilder = new MessageBuilder();
+        messageBuilder.append(name);
+        messageBuilder.appendCodeBlock(table, "");
+
+        return messageBuilder.build();
     }
 
     private boolean createOptions(String[] options, String[] emotes) {
 
-        if(options.length != emotes.length)
+        if (options.length != emotes.length)
             return false;
 
-        for (int i=0; i<options.length; i++)
-        {
-            VoteOptions.add( new VoteOption(options[i].trim(), emotes[i].trim()));
+        for (int i = 0; i < options.length; i++) {
+            VoteOptions.add(new VoteOption(options[i].trim(), emotes[i].trim()));
         }
 
         return true;
@@ -81,7 +118,7 @@ class PollManager {
         // create table header
         StringBuilder header = new StringBuilder(" " + Utilities.padRight("Name", nameColumnPadding) + " |");
 
-        for (VoteOption voteOption : VoteOptions){
+        for (VoteOption voteOption : VoteOptions) {
             header.append(" ").append(voteOption.Name).append(" |");
         }
 
@@ -101,15 +138,15 @@ class PollManager {
 
         VoteOptions.forEach(voteOption -> voteOption.Count = 0);
 
-        for (Map.Entry<User, ArrayList<MessageReaction>> userVote : UserVotes.entrySet()) {
+        for (Map.Entry<Member, ArrayList<MessageReaction>> userVote : UserVotes.entrySet()) {
 
-            entries.append(" ").append(Utilities.padRight(userVote.getKey().getName(), nameColumnPadding)).append(" |");
+            entries.append(" ").append(Utilities.padRight(userVote.getKey().getNickname(), nameColumnPadding)).append(" |");
 
             for (VoteOption voteOption : VoteOptions) {
 
                 boolean found = false;
                 for (MessageReaction messageReaction : userVote.getValue()) {
-                    if(voteOption.Emote.equals(messageReaction.getReactionEmote().getName())){
+                    if (voteOption.Emote.equals(messageReaction.getReactionEmote().getName())) {
                         found = true;
                         voteOption.Count++;
                         entries.append(" ").append(Utilities.padRight("X", voteOption.Name.length())).append(" |");
@@ -117,7 +154,7 @@ class PollManager {
                     }
                 }
 
-                if(!found)
+                if (!found)
                     entries.append(" ").append(Utilities.padRight("", voteOption.Name.length())).append(" |");
             }
 
@@ -134,7 +171,7 @@ class PollManager {
 
         summary = new StringBuilder(summary.substring(0, summary.length() - 1));
 
-        return  header +
+        return header +
                 separator.toString() +
                 entries +
                 separator +
@@ -145,56 +182,62 @@ class PollManager {
 
         int maxLength = "Name".length();
 
-        for (Map.Entry<User, ArrayList<MessageReaction>> userVote : UserVotes.entrySet()){
-            int userNameLength = userVote.getKey().getName().length();
-            if(userNameLength > maxLength)
-                maxLength =  userNameLength;
+        for (Map.Entry<Member, ArrayList<MessageReaction>> userVote : UserVotes.entrySet()) {
+            int userNameLength = userVote.getKey().getNickname().length();
+            if (userNameLength > maxLength)
+                maxLength = userNameLength;
         }
 
         return maxLength;
     }
 
-    void addReactionsToMessage() {
-        for (VoteOption voteOption : VoteOptions){
+    void addInitialReactions() {
+        for (VoteOption voteOption : VoteOptions) {
             PollMessage.addReaction(voteOption.Emote).queue();
         }
     }
 
-    void addUserVote(User user, MessageReaction messageReaction) {
+    void addUserVote(MessageReactionAddEvent event) {
 
-        ArrayList<MessageReaction> messageReactions = UserVotes.get(user);
+        Member member = event.getMember();
+        MessageReaction messageReaction = event.getReaction();
 
-        if (messageReactions != null)  //not voted yet
-        {
-            if(!messageReactions.contains(messageReaction)) //if not already voted
-                messageReactions.add(messageReaction);
-        }
-        //add vote to other votes
-        else {
+        ArrayList<MessageReaction> messageReactions = UserVotes.get(member);
+
+        if (messageReactions == null) {
             messageReactions = new ArrayList<>();
             messageReactions.add(messageReaction);
         }
+        else {
+            if (PollType == PollType.SingleChoice){
+                //event.getChannel().getMessageById(event.getMessageId()).complete().
+            }
 
-        UserVotes.put(user, messageReactions);
+            if (!messageReactions.contains(messageReaction)) //if not already voted
+                messageReactions.add(messageReaction);
+        }
+
+
+        UserVotes.put(member, messageReactions);
     }
 
-    void removeUserVote(User user, MessageReaction messageReaction) {
+    void removeUserVote(Member member, MessageReaction messageReaction) {
 
-        ArrayList<MessageReaction> messageReactions = UserVotes.get(user);
+        ArrayList<MessageReaction> messageReactions = UserVotes.get(member);
 
         if (messageReactions == null)  //already voted
             return;
 
         messageReactions.remove(messageReaction);
 
-        if(messageReactions.size() <= 0)
-            UserVotes.remove(user, messageReactions);
+        if (messageReactions.size() <= 0)
+            UserVotes.remove(member, messageReactions);
     }
 
     boolean verifyReaction(MessageReaction messageReaction) {
 
         for (VoteOption voteOption : VoteOptions) {
-            if(voteOption.Emote.equals(messageReaction.getReactionEmote().getName())) {
+            if (voteOption.Emote.equals(messageReaction.getReactionEmote().getName())) {
                 return true;
             }
         }

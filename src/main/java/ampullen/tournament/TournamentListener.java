@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
 
 public class TournamentListener extends ListenerAdapterCommand{
 	
-	public TournamentListener() {
-		super("t");
+	public TournamentListener(String commandString) {
+		super(commandString);
 	}
 
 	private Tournament getTournament(String[] args, int index, Message msg){
@@ -34,12 +34,16 @@ public class TournamentListener extends ListenerAdapterCommand{
 		if(args.length > index){
 
 			String name = args[index];
-			return JsonModel.getInstance().findTouramentByName(name);
+			return JsonModel.getInstance().tournaments().stream()
+                    .filter(x -> x.getName().toLowerCase().startsWith(name.toLowerCase()))
+                    .findFirst().orElse(null);
 
 		}
 
 		String tournamentname = new Prompt("Welches Turnier?", msg.getChannel(), msg.getAuthor()).promptSync();
-		return JsonModel.getInstance().findTouramentByName(tournamentname);
+		return JsonModel.getInstance().tournaments().stream()
+                .filter(x -> x.getName().toLowerCase().startsWith(tournamentname.toLowerCase()))
+                .findFirst().orElse(null);
 
 	}
 
