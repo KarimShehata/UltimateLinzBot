@@ -18,7 +18,8 @@ public class TournamentCreator extends ListenerAdapter{
 	
 	private String[] arr = new String[]{"Wie heiﬂt das Turnier?", "Wann ist das Turnier?", "Wo ist das Turnier?", "In welchem Format?", "Mixed, Open, Women?", "Teamfee?", "Playersfee?", "Registration Deadline?", "Payment Deadline?", "Ultimate Central Link?"};
 	public static final String[] fields = new String[]{"name", "date", "location", "format", "division", "teamFee", "playersFee", "registrationDeadline", "paymentDeadline", "uclink"};
-	public static final String[] translations = new String[]{"name-Name des Turniers", "datum-Datum", "ort-Ort des Turniers", "format-Format (z.B. 5v5 Continous)", "division-Division (Mixed, Women, Open, Master)", "teamfee-Teamfee", "playersfee-Playersfee", "registrationdeadline-Deadline zur Registrierung", "paymentdeadline-Deadline zur Teamfeezahlung", "link-Ultimate Central Link"};
+	public static final String[] nonCreationFields = new String[]{"schedule", "playersinfo"};
+	public static final String[] translations = new String[]{"name-Name des Turniers", "datum-Datum", "ort-Ort des Turniers", "format-Format (z.B. 5v5 Continous)", "division-Division (Mixed, Women, Open, Master)", "teamfee-Teamfee", "playersfee-Playersfee", "registrationdeadline-Deadline zur Registrierung", "paymentdeadline-Deadline zur Teamfeezahlung", "link-Ultimate Central Link", "schedule-Schedule", "playersinfo-Playersinfo"};
 	String[] values;
 	
 	int position = 0;
@@ -69,8 +70,11 @@ public class TournamentCreator extends ListenerAdapter{
 		for(int i = 0 ; i < translations.length ; i++) {
 			
 			if(translations[i].equals(label) || translations[i].split("-")[0].equals(label)) {
-				
-				return fields[i];
+
+				if(fields.length <= i)
+					return nonCreationFields[i - fields.length];
+				else
+					return fields[i];
 				
 			}
 		}
