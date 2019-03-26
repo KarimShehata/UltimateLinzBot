@@ -50,7 +50,7 @@ public class PollListener extends ListenerAdapter {
         int padding = 12;
 
         String info = "Verwendung: \n" +
-                commandString + " name /t type [S/M] /o optionA, optionB, optionC, .. /e emoteA, emoteB, emoteC, ..\n" +
+                commandString + " name /t Type [S/M] /o optionA, optionB, optionC, .. /e emoteA, emoteB, emoteC, ..\n" +
                 "(Sollte ein Wert Leerzeichen enthalten bitte in \"\" stellen.)";
 
         String commands = Utilities.padRight("help", padding) + "Ruft die Hilfe auf\n"

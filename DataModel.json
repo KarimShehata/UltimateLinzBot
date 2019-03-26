@@ -1,0 +1,19 @@
+[
+    {
+        "MessageId": "559462952147746829",
+        "Name": "Gelesen?",
+        "Type": "SingleChoice",
+        "VoteOptions": [
+            {
+                "Count": 0,
+                "Name": "Ja",
+                "Emote": "👍"
+            },
+            {
+                "Count": 0,
+                "Name": "Nein",
+                "Emote": "👎"
+            }
+        ]
+    }
+]

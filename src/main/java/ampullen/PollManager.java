@@ -1,30 +1,24 @@
 package ampullen;
 
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.MessageReaction;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class PollManager {
 
-    Message PollMessage;
-    String PollName;
-    private ArrayList<String> Users;
-    private PollType PollType;
-    private ArrayList<VoteOption> VoteOptions;
-    private HashMap<Member, ArrayList<MessageReaction>> UserVotes;
-
     static ArrayList<PollManager> managers = new ArrayList<>();
 
+    private PollData PollData;
+    private Message Message;
+    private HashMap<Member, ArrayList<MessageReaction>> UserVotes;
+
     public PollManager() {
-        Users = new ArrayList<>();
-        VoteOptions = new ArrayList<>();
+        PollData = new PollData();
         UserVotes = new HashMap<>();
     }
 
@@ -36,7 +30,7 @@ class PollManager {
         if (commandParts.length != 4)
             return false;
 
-        // /poll name /T type /O optionA, optionB, optionC, .. /E emoteA, emoteB, emoteC, ..
+        // /poll name /T Type /O optionA, optionB, optionC, .. /E emoteA, emoteB, emoteC, ..
 
         String pollName = commandParts[0].replace(Main.prefix + "p ", "").trim();
         String pollType = commandParts[1].replace("/t ", "").trim();
@@ -45,14 +39,14 @@ class PollManager {
 
         PollManager pollManager = new PollManager();
 
-        pollManager.PollName = pollName;
+        pollManager.PollData.Name = pollName;
 
         switch (pollType) {
             case "S":
-                pollManager.PollType = ampullen.PollType.SingleChoice;
+                pollManager.PollData.Type = ampullen.PollType.SingleChoice;
                 break;
             case "M":
-                pollManager.PollType = ampullen.PollType.MultipleChoice;
+                pollManager.PollData.Type = ampullen.PollType.MultipleChoice;
                 break;
             default:
                 return false;
@@ -65,10 +59,14 @@ class PollManager {
 
         Message message = pollManager.createPollMessage();
 
-        pollManager.PollMessage = Utilities.sendMessage(messageChannel, message);
+        pollManager.Message = Utilities.sendMessage(messageChannel, message);
+        pollManager.PollData.MessageId = pollManager.Message.getId();
         pollManager.addInitialReactions();
 
         managers.add(pollManager);
+
+        Main.DataModel.PollData.add(pollManager.PollData);
+        Main.DataModel.Save();
 
         return true;
     }
@@ -78,7 +76,7 @@ class PollManager {
         PollManager selectedPollManager = null;
 
         for (PollManager pollManager : managers) {
-            if (!pollManager.PollMessage.getId().equals(messageId)) continue;
+            if (!pollManager.PollData.MessageId.equals(messageId)) continue;
 
             selectedPollManager = pollManager;
         }
@@ -88,7 +86,7 @@ class PollManager {
 
     Message createPollMessage() {
 
-        String name = PollName;
+        String name = PollData.Name;
 
         String table = createAsciiTable();
 
@@ -105,7 +103,7 @@ class PollManager {
             return false;
 
         for (int i = 0; i < options.length; i++) {
-            VoteOptions.add(new VoteOption(options[i].trim(), emotes[i].trim()));
+            PollData.VoteOptions.add(new VoteOption(options[i].trim(), emotes[i].trim()));
         }
 
         return true;
@@ -118,7 +116,7 @@ class PollManager {
         // create table header
         StringBuilder header = new StringBuilder(" " + Utilities.padRight("Name", nameColumnPadding) + " |");
 
-        for (VoteOption voteOption : VoteOptions) {
+        for (VoteOption voteOption : PollData.VoteOptions) {
             header.append(" ").append(voteOption.Name).append(" |");
         }
 
@@ -136,13 +134,13 @@ class PollManager {
         // create entries
         StringBuilder entries = new StringBuilder();
 
-        VoteOptions.forEach(voteOption -> voteOption.Count = 0);
+        PollData.VoteOptions.forEach(voteOption -> voteOption.Count = 0);
 
         for (Map.Entry<Member, ArrayList<MessageReaction>> userVote : UserVotes.entrySet()) {
 
             entries.append(" ").append(Utilities.padRight(userVote.getKey().getNickname(), nameColumnPadding)).append(" |");
 
-            for (VoteOption voteOption : VoteOptions) {
+            for (VoteOption voteOption : PollData.VoteOptions) {
 
                 boolean found = false;
                 for (MessageReaction messageReaction : userVote.getValue()) {
@@ -165,7 +163,7 @@ class PollManager {
         // create summary
         StringBuilder summary = new StringBuilder(" " + Utilities.padRight(Integer.toString(UserVotes.size()), nameColumnPadding) + " |");
 
-        for (VoteOption voteOption : VoteOptions) {
+        for (VoteOption voteOption : PollData.VoteOptions) {
             summary.append(" ").append(Utilities.padRight(Integer.toString(voteOption.Count), voteOption.Name.length())).append(" |");
         }
 
@@ -192,9 +190,25 @@ class PollManager {
     }
 
     void addInitialReactions() {
-        for (VoteOption voteOption : VoteOptions) {
-            PollMessage.addReaction(voteOption.Emote).queue();
+        for (VoteOption voteOption : PollData.VoteOptions) {
+            Message.addReaction(voteOption.Emote).queue();
         }
+    }
+
+    Message getPollMessageByMessageId(String messageId){
+        Message message = null;
+
+        List<TextChannel> textChannels = Main.JDA.getTextChannels();
+        for (TextChannel textChannel : textChannels) {
+            try {
+                message = textChannel.getMessageById(messageId).complete();
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        return message;
     }
 
     void addUserVote(MessageReactionAddEvent event) {
@@ -207,16 +221,14 @@ class PollManager {
         if (messageReactions == null) {
             messageReactions = new ArrayList<>();
             messageReactions.add(messageReaction);
-        }
-        else {
-            if (PollType == PollType.SingleChoice){
+        } else {
+            if (PollData.Type == PollType.SingleChoice) {
                 //event.getChannel().getMessageById(event.getMessageId()).complete().
             }
 
             if (!messageReactions.contains(messageReaction)) //if not already voted
                 messageReactions.add(messageReaction);
         }
-
 
         UserVotes.put(member, messageReactions);
     }
@@ -236,7 +248,7 @@ class PollManager {
 
     boolean verifyReaction(MessageReaction messageReaction) {
 
-        for (VoteOption voteOption : VoteOptions) {
+        for (VoteOption voteOption : PollData.VoteOptions) {
             if (voteOption.Emote.equals(messageReaction.getReactionEmote().getName())) {
                 return true;
             }
