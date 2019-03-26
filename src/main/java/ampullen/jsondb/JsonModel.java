@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+import ampullen.Main;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
@@ -17,7 +18,6 @@ import com.squareup.moshi.Types;
 import ampullen.model.Tournament;
 import ampullen.model.TournamentVotes;
 
-import static ampullen.Main.jda;
 
 public class JsonModel implements Observer{
 
@@ -127,7 +127,7 @@ public class JsonModel implements Observer{
 
 						if(element instanceof Initializeable){
 
-							observablelist.forEach(x -> ((Initializeable) x).init(jda));
+							observablelist.forEach(x -> ((Initializeable) x).init(Main.JDA));
 
 						}
 					
