@@ -1,15 +1,12 @@
-package ampullen;
+package ampullen.tournament;
 
-import ampullen.AsciiTable.ColumnDefinition;
+import ampullen.helper.AsciiTable;
+import ampullen.helper.AsciiTable.ColumnDefinition;
 import ampullen.jsondb.IObservable;
 import ampullen.jsondb.Observer;
-import ampullen.model.Tournament;
 import ampullen.model.TournamentVotes;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-
-import java.util.Arrays;
 
 public class AsciiMessageObserver implements Observer {
 
@@ -45,7 +42,7 @@ public class AsciiMessageObserver implements Observer {
                 .appendCodeBlock(table.renderAscii(), "")
                 .build();
 
-        table.tableMessage.editMessage(newmessage).queue();
+        table.getTableMessage().editMessage(newmessage).queue();
     }
 
 

@@ -17,7 +17,7 @@ import com.squareup.moshi.Types;
 import ampullen.model.Tournament;
 import ampullen.model.TournamentVotes;
 
-import static ampullen.Main.jda;
+import static ampullen.Main.JDA;
 
 public class JsonModel implements Observer{
 
@@ -127,7 +127,7 @@ public class JsonModel implements Observer{
 
 						if(element instanceof Initializeable){
 
-							observablelist.forEach(x -> ((Initializeable) x).init(jda));
+							observablelist.forEach(x -> ((Initializeable) x).init(JDA));
 
 						}
 					

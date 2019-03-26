@@ -6,8 +6,7 @@ import java.util.Map;
 
 import javax.naming.OperationNotSupportedException;
 
-import ampullen.AsciiMessageObserver;
-import ampullen.AsciiTable;
+import ampullen.tournament.AsciiMessageObserver;
 import ampullen.helper.EmoteLimiter.EmoteListener;
 import ampullen.helper.PersistentMessage;
 import ampullen.jsondb.IObservable;
@@ -16,7 +15,6 @@ import ampullen.jsondb.Observer;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import ampullen.AsciiTable.ColumnDefinition;
 
 public class TournamentVotes extends Observable implements Observer{
 	

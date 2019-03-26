@@ -1,4 +1,4 @@
-package ampullen;
+package ampullen.tournament;
 
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.MessageType;

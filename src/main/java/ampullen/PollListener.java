@@ -1,6 +1,7 @@
 package ampullen;
 
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -29,13 +30,15 @@ public class PollListener extends ListenerAdapter {
 
         if (event.getAuthor().isBot()) return;
 
+        if(event.getChannel().getType() == ChannelType.PRIVATE) return;
+
+        if (!command.equals(commandString)) return;
+
         // Probably not necessary
         if (!Utilities.HasMemberRole(event.getMember(), "Vereinsmitglied")) {
             MessageTimer.deleteAfter(event.getMessage(), 0);
             return;
         }
-
-        if (!command.equals(commandString)) return;
 
         boolean pollCreated = PollManager.create(messageString, messageChannel);
         if (!pollCreated) {

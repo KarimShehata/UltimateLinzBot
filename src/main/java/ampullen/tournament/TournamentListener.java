@@ -1,10 +1,8 @@
 package ampullen.tournament;
 
-import ampullen.Main;
 import ampullen.MessageTimer;
-import ampullen.PinMessageRemoveListener;
 import ampullen.Utilities;
-import ampullen.helper.Conversation;
+import ampullen.helper.PersistentMessage;
 import ampullen.helper.Prompt;
 import ampullen.jsondb.JsonModel;
 import ampullen.model.Blocking;
@@ -269,19 +267,13 @@ public class TournamentListener extends ListenerAdapterCommand{
 	
 	@Blocking
 	public void test(MessageReceivedEvent event, String[] msg) {
-		
-		/*String response = new Prompt("PromptTest", event.getChannel(), event.getAuthor()).promptSync();
-		System.out.println(response);
-		
-		send(event.getChannel(), response);*/
 
-		/*Message m = event.getChannel().getMessageById(501649064887189504L).complete();
-		
-		new EmoteLimiter(m)
-		.setAllowedEmotes(Arrays.asList("in", "50", "out"))
-		.setDisplayAllowed(true)
-		.setLimitReactions(true).start(event.getChannel());
-		System.out.println("test");*/
+
+		PersistentMessage info = new PersistentMessage(event.getMessage(),
+				Arrays.asList("in", "50", "out"),
+				true);
+
+		info.init();
 
 //		event.getJDA().getTextChannelById(557833273456328716L).getMessageById(557833275889025034L).complete()
 //		.getReactions().forEach(x -> {
@@ -289,16 +281,6 @@ public class TournamentListener extends ListenerAdapterCommand{
 //			x.getUsers().complete().forEach(y -> System.out.print(y.getName()));
 //			System.out.println();
 //		});
-
-//		Message m = event.getChannel().sendMessage("Testmessage").complete();
-//		PinMessageRemoveListener pinremover = new PinMessageRemoveListener(event.getTextChannel());
-//
-//		pinremover.afterCount(1, () -> {
-//			event.getJDA().removeEventListener(pinremover);
-//		});
-//
-//		event.getJDA().addEventListener(pinremover);
-//		m.pin().complete();
 		
 //		Conversation c = new Conversation()
 //				.build()
