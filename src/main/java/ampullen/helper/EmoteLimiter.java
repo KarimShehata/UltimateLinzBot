@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import ampullen.Main;
 import javafx.util.Pair;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Channel;
@@ -85,30 +86,34 @@ public class EmoteLimiter extends ListenerAdapter{
 		manageBotReactions(messages.toArray(new Long[0]));
 	}
 
-	public void manageBotReactions(Long... messages){
+	private void manageBotReactions(Long... messages){
 
-		Arrays.stream(messages).map(x -> c.getMessageById(x).complete()).forEach(m -> {
+		if(Main.isInDeveloperMode) {
 
-			boolean botReactionsActive = m.getReactions().stream().allMatch(x -> x.getUsers().complete().stream().anyMatch(User::isBot));
+			Arrays.stream(messages).map(x -> c.getMessageById(x).complete()).forEach(m -> {
 
-			List<Pair<MessageReaction, Integer>> sums =
-					m.getReactions().stream()
-					.map(x -> new Pair<>(x, x.getUsers().complete().size()))
-					.collect(Collectors.toList());
+				boolean botReactionsActive = m.getReactions().stream().allMatch(x -> x.getUsers().complete().stream().anyMatch(User::isBot));
 
-			User bot = m.getJDA().getSelfUser();
+				List<Pair<MessageReaction, Integer>> sums =
+						m.getReactions().stream()
+								.map(x -> new Pair<>(x, x.getUsers().complete().size()))
+								.collect(Collectors.toList());
 
-			if(botReactionsActive && sums.stream().allMatch(x -> x.getValue() > 1)){
+				User bot = m.getJDA().getSelfUser();
 
-				m.getReactions().forEach(messageReaction -> messageReaction.removeReaction(bot).complete());
+				if (botReactionsActive && sums.stream().allMatch(x -> x.getValue() > 1)) {
 
-			}else if(!botReactionsActive && sums.stream().anyMatch(x -> x.getValue() < 2)){
+					m.getReactions().forEach(messageReaction -> messageReaction.removeReaction(bot).complete());
 
-				allowedEmotes.forEach(s -> m.addReaction(s).complete());
+				} else if (!botReactionsActive && sums.stream().anyMatch(x -> x.getValue() < 2)) {
 
-			}
+					allowedEmotes.forEach(s -> m.addReaction(s).complete());
 
-		});
+				}
+
+			});
+
+		}
 
 	}
 

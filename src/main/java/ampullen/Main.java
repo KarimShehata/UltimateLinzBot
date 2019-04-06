@@ -20,7 +20,7 @@ public class Main{
 	public static DataModel DataModel;
 
 	static String prefix;
-	static boolean isInDeveloperMode = true;
+	public static boolean isInDeveloperMode = true;
 
 	public static void main(String[] args){
 
