@@ -14,10 +14,7 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -205,20 +202,40 @@ public class TournamentListener extends ListenerAdapterCommand{
 			TextChannel newc = (TextChannel)c.createTextChannel(x.getName()).complete();
 			
 			//Permissions
-			List<Role> roles = guild.getRolesByName(x.getDivision(), true); //TODO Better, so typos or more Divisions are supported
-			System.out.println(roles.toString());
-			if(roles.size() > 0) {
-				
-				List<Permission> permissions = Arrays.stream(Permission.values())
-				.filter(Permission::isChannel)
-				.filter(p -> p.getRawValue() != Permission.MESSAGE_MANAGE.getRawValue())
-				.collect(Collectors.toList());
-				long raw = Permission.getRaw(permissions);
-				
-				roles.forEach(y -> {
-					newc.getManager().putPermissionOverride(y, raw, Permission.MESSAGE_MANAGE.getRawValue()).complete();
-				});
-			}
+
+			new Thread(() -> {
+
+				try {
+					Thread.sleep(5000L);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				List<Role> roles = guild.getRolesByName(x.getDivision(), true); //TODO Better, so typos or more Divisions are supported
+				System.out.println(roles.toString());
+				if(roles.size() > 0) {
+
+					List<Permission> permissions = new ArrayList<>(Arrays.asList(
+							Permission.MESSAGE_ADD_REACTION,
+							Permission.VIEW_CHANNEL,
+							Permission.MESSAGE_WRITE,
+							Permission.MESSAGE_READ,
+							Permission.MESSAGE_TTS,
+							Permission.MESSAGE_EMBED_LINKS,
+							Permission.MESSAGE_ATTACH_FILES,
+							Permission.MESSAGE_EXT_EMOJI
+					));
+					
+					long raw = Permission.getRaw(permissions);
+
+					roles.forEach(y -> {
+
+						newc.getManager().putPermissionOverride(y, raw, 0).complete();
+
+					});
+				}
+			}).start();
+
 			
 			//Deny Vereinsmitglied Writing Permission
 			Role member = guild.getRolesByName("Vereinsmitglied", true).stream().findFirst().orElse(null);
@@ -269,11 +286,39 @@ public class TournamentListener extends ListenerAdapterCommand{
 	public void test(MessageReceivedEvent event, String[] msg) {
 
 
-		PersistentMessage info = new PersistentMessage(event.getMessage(),
-				Arrays.asList("in", "50", "out"),
-				true);
+		List<Role> roles = event.getGuild().getRolesByName("Mixed", true); //TODO Better, so typos or more Divisions are supported
+		System.out.println(roles.toString());
+		if(roles.size() > 0) {
 
-		info.init();
+			List<Permission> permissions = new ArrayList<>(Arrays.asList(
+					Permission.MESSAGE_ADD_REACTION,
+					Permission.VIEW_CHANNEL,
+					Permission.MESSAGE_WRITE,
+					Permission.MESSAGE_READ,
+					Permission.MESSAGE_TTS,
+					Permission.MESSAGE_EMBED_LINKS,
+					Permission.MESSAGE_ATTACH_FILES,
+					Permission.MESSAGE_EXT_EMOJI
+			));
+
+//				List<Permission> permissions = Arrays.stream(Permission.values())
+//				.filter(Permission::isChannel)
+//				.filter(p -> p.getRawValue() != Permission.MESSAGE_MANAGE.getRawValue())
+//				.collect(Collectors.toList());
+			long raw = Permission.getRaw(permissions);
+
+			roles.forEach(y -> {
+
+//				permissions.forEach(p -> event.getGuild().getTextChannelById(564098472295399424L).getManager().putPermissionOverride(y, p.getRawValue(), 0).complete());
+				event.getGuild().getTextChannelById(564098472295399424L).getManager().putPermissionOverride(y, raw, 0).complete();
+			});
+		}
+
+//		PersistentMessage info = new PersistentMessage(event.getMessage(),
+//				Arrays.asList("in", "50", "out"),
+//				true);
+//
+//		info.init();
 
 //		event.getJDA().getTextChannelById(557833273456328716L).getMessageById(557833275889025034L).complete()
 //		.getReactions().forEach(x -> {
