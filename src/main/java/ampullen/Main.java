@@ -48,6 +48,7 @@ public class Main{
 
 		JDA.addEventListener(new TournamentListener(prefix + "t"));
 		JDA.addEventListener(new PollListener(prefix + "p"));
+		JDA.addEventListener(new HelpListener());
 
 		//JDA.addEventListener(new MainListener());
 		//JDA.addEventListener(new RegistrationListener());
