@@ -14,7 +14,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 public abstract class ListenerAdapterCommand extends ListenerAdapter{
 	
-	String cmd;
+	protected String cmd;
 	Message lastMessage;
 	
 	public ListenerAdapterCommand(String commandString) {

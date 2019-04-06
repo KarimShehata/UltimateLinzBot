@@ -310,8 +310,8 @@ public class TournamentListener extends ListenerAdapterCommand{
     			.reduce((x, y) -> x + "\n" + y).orElse("Keine Turniere zurzeit verfuegbar");
 
 		Message m = event.getChannel().sendMessage(new MessageBuilder().appendCodeBlock(s, "").build()).complete();
-		MessageTimer.deleteAfter(m, 15000);
-		deleteCommandAfter(15000);
+//		MessageTimer.deleteAfter(m, 15000);
+//		deleteCommandAfter(15000);
 		
 	}
 
@@ -324,7 +324,6 @@ public class TournamentListener extends ListenerAdapterCommand{
 		}else{
 			MessageTimer.deleteAfter(sendSync(event.getChannel(), "Turnier konnte nicht gefunden werden!"), 15000);
 		}
-		deleteCommandAfter(3000);
 	}
 	
 	@Override
@@ -332,14 +331,15 @@ public class TournamentListener extends ListenerAdapterCommand{
 
 		int padding = 12;
 
-		String info = "Mit \"/tournament\" oder \"/t\" erstellst und verwaltest du Turniere\n"
+		String info = "Mit \"" + this.cmd + "\" erstellst und verwaltest du Turniere\n"
 				+ "Alle verfügbaren Optionen:\n";
 
 		String commands = Utilities.padRight("help", padding) + "Ruft die Hilfe auf\n"
 						+ Utilities.padRight("create", padding) + "Erstellt ein neues Turnier\n"
-						+ Utilities.padRight("info [x]", padding) + "Infos zu aktuellen Turnier [x = Turniername]"
-						+ Utilities.padRight("list", padding) + "Listet alle erstellten Turniere"
-						+ Utilities.padRight("archive", padding) + "Archiviert ein Turnier";
+						+ Utilities.padRight("info [x]", padding) + "Infos zu aktuellen Turnier [x = Turniername]\n"
+						+ Utilities.padRight("editinfo", padding) + "Ändert die Infos eines Turniers\n"
+						+ Utilities.padRight("list", padding) + "Listet alle erstellten Turniere\n"
+						+ Utilities.padRight("archive", padding) + "Archiviert ein Turnier\n";
 
 		MessageBuilder messageBuilder = new MessageBuilder();
 		messageBuilder.append(info);
