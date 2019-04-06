@@ -1,11 +1,10 @@
 package ampullen.jsondb;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +16,7 @@ import com.squareup.moshi.Types;
 
 import ampullen.model.Tournament;
 import ampullen.model.TournamentVotes;
+import sun.nio.cs.UTF_32;
 
 import static ampullen.Main.JDA;
 
@@ -71,10 +71,12 @@ public class JsonModel implements Observer{
 
 		JsonAdapter<List<T>> adapter = moshi.adapter(type);
 		String s = adapter.toJson(list);
-		s = s.replaceAll("[�$������]", "");
+//		s = s.replaceAll("[�$������]", "");
 
-		try (FileWriter fw = new FileWriter(f)){
-			fw.write(s);
+		try(Writer writer = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8)){
+
+			writer.write(s);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -110,7 +112,7 @@ public class JsonModel implements Observer{
 				try {
 					List<String> list = Files.readAllLines(file.toPath());
 					System.out.println(list.toString());
-					String s = Files.readAllLines(file.toPath()).stream().reduce("", (x, y) -> x + y);
+					String s = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8).stream().reduce("", (x, y) -> x + y);
 					JsonAdapter adapter = moshi.adapter(t);
 					Object o = adapter.fromJson(s);
 					ObservableList observablelist = new ObservableList(((List)o));
