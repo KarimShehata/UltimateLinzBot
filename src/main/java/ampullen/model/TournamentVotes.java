@@ -2,16 +2,20 @@ package ampullen.model;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.OperationNotSupportedException;
 
+import ampullen.Main;
 import ampullen.tournament.AsciiMessageObserver;
 import ampullen.helper.EmoteLimiter.EmoteListener;
 import ampullen.helper.PersistentMessage;
 import ampullen.jsondb.IObservable;
 import ampullen.jsondb.Observable;
 import ampullen.jsondb.Observer;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
@@ -92,7 +96,7 @@ public class TournamentVotes extends Observable implements Observer{
 				choices.setAttendance(c);
 
 				//Notify table
-				asciiMessageObserver.answerChanged(uname, emote);
+				asciiMessageObserver.answerChanged(e.getMember().getNickname(), emote);
 
 			}
 		});
@@ -146,10 +150,21 @@ public class TournamentVotes extends Observable implements Observer{
 
 		this.asciiMessageObserver = new AsciiMessageObserver(this, tableMessage);
 
-		this.getAttendance().forEach((s, choices) -> asciiMessageObserver.answerChanged(s, choices.a.name()));
+		Guild guild = tableMessage.getGuild();
+
+		this.getAttendance().forEach((s, choices) -> asciiMessageObserver.answerChanged(getNicknameByUname(s, guild), choices.a.name()));
 
 		this.asciiMessageObserver.editMessage(); //If no Choices are there yet, render empty Table
 
+	}
+
+	private String getNicknameByUname(String name, Guild guild){
+		List<Member> list = guild.getMembersByName(name, false);
+		if(list.size() > 0){
+			return list.get(0).getNickname();
+		}else{
+			return name;
+		}
 	}
 
 	@Override
