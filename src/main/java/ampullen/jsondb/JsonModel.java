@@ -22,7 +22,7 @@ import static ampullen.Main.JDA;
 
 public class JsonModel implements Observer{
 
-	private static final File BASE_DIRECTORY = new File(new File(System.getProperty("user.dir")).getParent() + File.pathSeparator + "db");
+	private static final File BASE_DIRECTORY = new File(new File(System.getProperty("user.dir")).getParent() + File.separator + "db");
 	private Moshi moshi = new Moshi.Builder().build();
 
 	private ObservableList<Tournament> tournaments = new ObservableList<>();
@@ -64,7 +64,7 @@ public class JsonModel implements Observer{
 		}//TODO Other Classes
 
 
-		File f = new File(BASE_DIRECTORY.getAbsolutePath() + File.pathSeparator + name + ".json");
+		File f = new File(BASE_DIRECTORY.getAbsolutePath() + File.separator + name + ".json");
 
 		//if(empty)
 		//	list.clear();
@@ -103,7 +103,7 @@ public class JsonModel implements Observer{
 
 			Type t = Types.newParameterizedType(List.class, type);
 
-			File file = new File(BASE_DIRECTORY.getAbsolutePath() + File.pathSeparator + name + ".json");
+			File file = new File(BASE_DIRECTORY.getAbsolutePath() + File.separator + name + ".json");
 
 			if(file.exists()){
 
