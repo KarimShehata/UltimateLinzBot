@@ -225,7 +225,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 							Permission.MESSAGE_ATTACH_FILES,
 							Permission.MESSAGE_EXT_EMOJI
 					));
-					
+
 					long raw = Permission.getRaw(permissions);
 
 					roles.forEach(y -> {

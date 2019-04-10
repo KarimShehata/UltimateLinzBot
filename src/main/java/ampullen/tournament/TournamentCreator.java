@@ -94,7 +94,7 @@ public class TournamentCreator extends ListenerAdapter{
 					
 					if(m.getParameters()[0].getType().getName().equals(long.class.getName())){
 						
-						m.invoke(t, new SimpleDateFormat("DD.MM.yyyy").parse(value).getTime());
+						m.invoke(t, new SimpleDateFormat("dd.MM.yyyy").parse(value).getTime());
 					}else{
 						m.invoke(t, value);
 					}
