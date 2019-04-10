@@ -31,7 +31,7 @@ public abstract class ListenerAdapterCommand extends ListenerAdapter{
 		
 		if(!event.getJDA().getSelfUser().equals(event.getAuthor())){
 			if(channel.getType() == ChannelType.GROUP || channel.getType() == ChannelType.PRIVATE || channel.getType() == ChannelType.TEXT){
-				if(msg.startsWith(cmd + " ")){
+				if(msg.startsWith(cmd)){
 					
 					System.out.println("Message: " + event.getMessage().getContentDisplay() + " MessageId " + event.getMessageId());
 					lastMessage = event.getMessage();
