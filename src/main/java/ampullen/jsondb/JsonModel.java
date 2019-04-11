@@ -66,12 +66,17 @@ public class JsonModel implements Observer{
 
 		File f = new File(BASE_DIRECTORY.getAbsolutePath() + File.separator + name + ".json");
 
-		//if(empty)
-		//	list.clear();
-
 		JsonAdapter<List<T>> adapter = moshi.adapter(type);
 		String s = adapter.toJson(list);
-//		s = s.replaceAll("[�$������]", "");
+
+		if(!f.exists()){
+			try {
+				f.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
 
 		try(Writer writer = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8)){
 

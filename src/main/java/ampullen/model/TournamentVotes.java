@@ -52,7 +52,7 @@ public class TournamentVotes extends Observable implements Observer{
 	
 	public void setAttendanceMsg(Message m) {
 		PersistentMessage info = new PersistentMessage(m,
-				Arrays.asList("in", "50", "out"),
+				Arrays.asList("in", "out"),
 				true);
 		
 		attendanceMsgId = m.getIdLong();
@@ -211,8 +211,8 @@ public class TournamentVotes extends Observable implements Observer{
 		
 	}
 	
-	public static enum AttendanceChoice{
-		IN, MAYBE, OUT, NOTSET;
+	public enum AttendanceChoice{
+		IN, OUT, NOTSET;
 		
 		public static AttendanceChoice fromEmoteString(String name) {
 			AttendanceChoice c = AttendanceChoice.NOTSET;
@@ -221,15 +221,13 @@ public class TournamentVotes extends Observable implements Observer{
 					c = AttendanceChoice.IN; break;
 				case "out":
 					c = AttendanceChoice.OUT; break;
-				case "50":
-					c = AttendanceChoice.MAYBE; break;
 			}
 			return c;
 		}
 		
 	}
 	
-	public static enum EatingChoice{
+	public enum EatingChoice{
 		MEAT, VEGGIE, NOTSET;
 
 		public static EatingChoice fromEmoteString(String emote) {

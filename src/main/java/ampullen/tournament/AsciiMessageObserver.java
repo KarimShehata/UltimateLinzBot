@@ -23,7 +23,6 @@ public class AsciiMessageObserver implements Observer {
         return new ColumnDefinition<String>()
                 .addPrimaryColumn("Name")
                 .addColumn("In", x -> x.equalsIgnoreCase("in"))
-                .addColumn("50%", x -> x.equalsIgnoreCase("50"))
                 .addColumn("Out", x -> x.equalsIgnoreCase("out"));
 
     }
