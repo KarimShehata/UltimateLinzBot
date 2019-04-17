@@ -261,7 +261,7 @@ public class Tournament extends Observable implements Observer, Initializeable {
 	
 	public String getInfoMarkup(){
 		
-		SimpleDateFormat dateformat = new SimpleDateFormat("DD.MM.yyyy");
+		SimpleDateFormat dateformat = new SimpleDateFormat("dd.MM.yyyy");
 		
 		String s = String.format(
 				"\n**%s**\n"
