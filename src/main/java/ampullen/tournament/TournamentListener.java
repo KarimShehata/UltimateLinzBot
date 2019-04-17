@@ -206,12 +206,12 @@ public class TournamentListener extends ListenerAdapterCommand{
 			new Thread(() -> {
 
 				try {
-					Thread.sleep(5000L);
+					Thread.sleep(12000L);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 
-				List<Role> roles = guild.getRolesByName(x.getDivision(), true); //TODO Better, so typos or more Divisions are supported
+				List<Role> roles = guild.getRolesByName("Vereinsmitglied", true);
 				System.out.println(roles.toString());
 				if(roles.size() > 0) {
 
@@ -238,17 +238,17 @@ public class TournamentListener extends ListenerAdapterCommand{
 
 			
 			//Deny Vereinsmitglied Writing Permission
-			Role member = guild.getRolesByName("Vereinsmitglied", true).stream().findFirst().orElse(null);
-			if(member != null) {
-				
-				newc.getManager().putPermissionOverride(member, 0, Permission.MESSAGE_WRITE.getRawValue()).complete();
-				
-			}
-			
+//			Role member = guild.getRolesByName("Vereinsmitglied", true).stream().findFirst().orElse(null);
+//			if(member != null) {
+//
+//				newc.getManager().putPermissionOverride(member, 0, Permission.MESSAGE_WRITE.getRawValue()).complete();
+//
+//			}
+
 			//Give the bot the power he deserves
 			Role bot = guild.getRolesByName("Bot", true).stream().findFirst().orElse(null);
 			if(bot != null) {
-				newc.getManager().putPermissionOverride(bot, Permission.ALL_CHANNEL_PERMISSIONS | Permission.ALL_TEXT_PERMISSIONS, 0);
+				newc.getManager().putPermissionOverride(bot, Permission.ALL_CHANNEL_PERMISSIONS | Permission.ALL_TEXT_PERMISSIONS, 0).complete();
 			}
 
 			PinMessageRemoveListener pinremover = new PinMessageRemoveListener(newc);
