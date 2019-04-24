@@ -22,7 +22,7 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
 public class TournamentVotes extends Observable implements Observer{
 	
-	Map<String, Choices> attendance = new HashMap<>();
+	public Map<String, Choices> attendance = new HashMap<>();
 	
 	public transient PersistentMessage attendanceMsg;
 	public transient PersistentMessage eatingMsg;

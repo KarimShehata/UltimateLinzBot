@@ -5,10 +5,7 @@ import ampullen.Utilities;
 import ampullen.helper.PersistentMessage;
 import ampullen.helper.Prompt;
 import ampullen.jsondb.JsonModel;
-import ampullen.model.Blocking;
-import ampullen.model.ListenerAdapterCommand;
-import ampullen.model.Permissioned;
-import ampullen.model.Tournament;
+import ampullen.model.*;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
@@ -17,6 +14,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static ampullen.jsondb.JsonModel.getInstance;
 
 public class TournamentListener extends ListenerAdapterCommand{
 	
@@ -29,14 +28,14 @@ public class TournamentListener extends ListenerAdapterCommand{
 		if(args.length > index){
 
 			String name = args[index];
-			return JsonModel.getInstance().tournaments().stream()
+			return getInstance().tournaments().stream()
                     .filter(x -> x.getName().toLowerCase().startsWith(name.toLowerCase()))
                     .findFirst().orElse(null);
 
 		}
 
 		String tournamentname = new Prompt("Welches Turnier?", msg.getChannel(), msg.getAuthor()).promptSync();
-		return JsonModel.getInstance().tournaments().stream()
+		return getInstance().tournaments().stream()
                 .filter(x -> x.getName().toLowerCase().startsWith(tournamentname.toLowerCase()))
                 .findFirst().orElse(null);
 
@@ -275,7 +274,7 @@ public class TournamentListener extends ListenerAdapterCommand{
 			//event.getGuild().getController().modifyTextChannelPositions().selectPosition(newc).moveTo(last + 1);
 
 			x.init(event.getJDA());
-			JsonModel.getInstance().tournaments().add(x);
+			getInstance().tournaments().add(x);
 		};
 		
 		new TournamentCreator(channel).create(consumer);
@@ -347,9 +346,9 @@ public class TournamentListener extends ListenerAdapterCommand{
 	
 	public void list(MessageReceivedEvent event, String[] msg){
 		
-		System.out.println(JsonModel.getInstance().tournaments().size());
+		System.out.println(getInstance().tournaments().size());
 		
-    	String s = "Created Tournaments: \n" + JsonModel.getInstance().tournaments().stream()
+    	String s = "Created Tournaments: \n" + getInstance().tournaments().stream()
     			.sorted((x, y) -> Long.compare(x.getDate(), y.getDate()))
     			.map(Tournament::getName)
     			.reduce((x, y) -> x + "\n" + y).orElse("Keine Turniere zurzeit verfuegbar");
@@ -358,6 +357,61 @@ public class TournamentListener extends ListenerAdapterCommand{
 //		MessageTimer.deleteAfter(m, 15000);
 //		deleteCommandAfter(15000);
 		
+	}
+
+	@Permissioned({"Moderator", "Admin"})
+	@Blocking
+	public void rereadPolls(MessageReceivedEvent event, String[] msg){
+
+		List<Tournament> tournaments = JsonModel.getInstance().tournaments();
+
+		tournaments.forEach(x -> {
+			TextChannel channel = event.getJDA().getTextChannelById(x.getAnnouncementChannel());
+
+			Map<String, TournamentVotes.Choices> map = new HashMap<>();
+
+			Message attmsg = channel.getMessageById(x.getVotes().attendanceMsgId).complete();
+
+			attmsg.getReactions().forEach(y -> {
+				y.getUsers().complete().forEach(u -> {
+					TournamentVotes.Choices c = new TournamentVotes.Choices();
+					if(y.getReactionEmote().getName().equals(":in:")){
+
+						c.setAttendance(TournamentVotes.AttendanceChoice.IN);
+
+					}else if(y.getReactionEmote().getName().equals(":out:")){
+						c.setAttendance(TournamentVotes.AttendanceChoice.OUT);
+					}
+					map.put(u.getName(), c);
+				});
+			});
+
+			Message eatmsg = channel.getMessageById(x.getVotes().eatingMsgId).complete();
+
+			eatmsg.getReactions().forEach(y -> {
+				y.getUsers().complete().forEach(u -> {
+					TournamentVotes.Choices c = new TournamentVotes.Choices();
+					if(y.getReactionEmote().getName().equals(":meat:")){
+
+						c.setEating(TournamentVotes.EatingChoice.MEAT);
+
+					}else if(y.getReactionEmote().getName().equals(":veggie:")){
+						c.setEating(TournamentVotes.EatingChoice.VEGGIE);
+					}
+					map.put(u.getName(), c);
+				});
+			});
+
+			x.getVotes().attendance = map;
+
+			event.getChannel().sendMessage("Restart Bot now").complete();
+
+			System.err.println("Restart Bot now!!");
+
+			event.getJDA().shutdownNow();
+
+		});
+
 	}
 
 	@Blocking
